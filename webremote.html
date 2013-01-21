@@ -2,9 +2,10 @@
 <html>
 <meta name="viewport" content="initial-scale = 1.0,maximum-scale = 1.0" />
    <head>
-	<script src="http://autobahn.s3.amazonaws.com/js/autobahn.min.js"></script>
 
+	<script src="http://autobahn.s3.amazonaws.com/js/autobahn.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>	
+
 	<script>
 	// WAMP session object
 	var sess;
@@ -13,8 +14,8 @@
 	function switchshow(targetshow) {
 		console.log("Switching shows to " + targetshow)
 	    sess.call("http://localhost/frame#switch", targetshow).then(ab.log);
-		
 	}
+
 	function advance() {
 		console.log("Advancing show")
 	    sess.call("http://localhost/frame#advance").then(ab.log);
@@ -24,7 +25,6 @@
 		console.log("Rewinding show")
 	    sess.call("http://localhost/frame#rewind").then(ab.log);
 	}
-
 
 	function stop() {
 		console.log("Stopping show")
@@ -61,40 +61,20 @@
 		        // $(document.createElement('li')).text(item).attr({href : 'http://cnn.com'})
 		        $(document.createElement('div')).html('<button onclick="switchshow('+ (index +1)  + ');">'+ item +'</button><hr>')
 		    );
-
 		});
-	
-	
-	
 	}
-
-
 
 	function run()
 	{
 		console.log("RUN.")
-	   // // call a function and log result on success
-	   // sess.call("calc:square", 23).then(ab.log);
-	   // 
-	   // call a function with multiple arguments
-	   sess.call("http://localhost/frame#switch", "2").then(ab.log);
-	   // 
-	   // // call a function with list of numbers as arg
-	   // sess.call("calc:sum", [1, 2, 3, 4, 5]).then(ab.log);
+		sess.call("http://localhost/frame#switch", "2").then(ab.log);
 	}
-
 
 	window.onload = function() {
 
 	   // connect to WAMP server
-	
 		wsuri = "ws://" + window.location.hostname + ":9000";
-	   // ab.connect("ws://192.168.4.77:9000",
-	   // ab.connect("ws://192.168.4.75:9000",
-	   // ab.connect("ws://192.168.229.129:9000",
-
 		ab.connect(wsuri,
-
 	      // WAMP session was established
 	         // things to do once the session has been established
 			function (session) {
@@ -106,10 +86,8 @@
 			   // session.prefix("calc", "http://localhost/calc#");
 	      },
 
-
 	      // WAMP session is gone
 	      function (code, reason) {
-
 	         // things to do once the session fails
 	      }
 	   );
