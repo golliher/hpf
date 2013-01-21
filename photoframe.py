@@ -25,25 +25,12 @@ import watchdog
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-
 class MyEventHandler(FileSystemEventHandler):   
    """Reacts to changes on the filesystem."""
-
-   # def __init__(self,show):
-   #     self.show = show
-
+   
    def on_any_event(self, event):
-       # if event.is_directory:
-       #     return
        print "Rescanning shows."
        scan_for_shows()
-       # self.show.load_path(self.show.path)
-
-       # def on_moved(self, event):
-       # def on_created(self, event):
-       # def on_deleted(self, event):
-       # def on_modified(self, event):
-       
 
 seconds_to_next_slide = 300
 
@@ -127,7 +114,6 @@ def msg(message, duration=3, bgcolor=grey, textcolor=white,alpha=200):
     draw_screen()
     return
             
-
 def aspect_scale(img,(bx,by)):
     """ Scales 'img' to fit into box bx/by.
      This method will retain the original image's aspect ratio """
@@ -221,9 +207,6 @@ def show_image_fullyqualified(imagefile):
     """Given the path to a file, paints it onto the background"""
     global show_frame
     filepath = imagefile
-    # print "show_imaged\ called with filepath: %s" % filepath
-
-    # filepath = imagefile
     
     try:
         img = pygame.image.load(filepath)
@@ -287,8 +270,6 @@ def rewind_show():
     print "calling show image with:%s" % theshow.current()
     theshow.prev()
     show_image(theshow.current())
-
-
 
 def scan_for_shows():
     print "SCANNING FOR SHOWS"
