@@ -13,8 +13,8 @@ def test():
 
 def deploy():
     print "Copying .py files over"
-    put('photoframe-src/*.py','photo-frame-project')
-    put('photoframe-src/*.sh','photo-frame-project')
+    put('photoframe-src/*.py','photo-frame-project', mode=0755)
+    put('photoframe-src/*.sh','photo-frame-project', mode=0755)
     
 def kill():
     run('pkill -f "python ./photoframe.py"')
