@@ -10,10 +10,12 @@
 	// WAMP session object
 	var sess;
 	var local_showlist = {};
+	var current_show = "DEFAULT";
 
 	function switchshow(targetshow) {
 		console.log("Switching shows to " + targetshow)
 	    sess.call("http://localhost/frame#switch", targetshow).then(ab.log);
+		get_currentshow();
 	}
 
 	function advance() {
@@ -46,6 +48,23 @@
 		
 		    );
 	}
+	
+	function get_currentshow() {
+		console.log("Asking for current show")
+	    sess.call("http://localhost/frame#getcurrentshow").then(
+			function (jsonresult) {
+				console.log("MARK ONE");
+				// local_currentshow.items = jQuery.parseJSON(jsonresult);
+				current_show = jsonresult;
+				console.log("MARK TWO: " + jsonresult);
+				$('#currentShow').text(jsonresult);
+				console.log($('#currentShow').text());
+			}
+		
+		    );
+		
+	}
+	
 	function showlist() {
 		console.log("Showing for list")
 	    console.log(local_showlist)
@@ -81,6 +100,7 @@
 			   sess = session;
 			   console.log("Connected!");
 				getlist();
+				get_currentshow();
 			   // establish a prefix, so we can abbreviate procedure URIs ..
 				// sess.prefix("calculator", "http://example.com/simple/calculator#");
 			   // session.prefix("calc", "http://localhost/calc#");
@@ -118,8 +138,9 @@
       <button onclick="stop();">Stop</button>
       <button onclick="start();">Start</button>
 <hr>
-<!--      <button onclick="showlist();">Show list</button>
-<hr>-->
+<!--      <button onclick="get_currentshow();">Get Current Show 4</button>-->
+CURRENT SHOW: <span id="currentShow">--</span>
+<hr>
 
 <!--      Open development console (press F12) to watch and press<br> -->
 Available shows:

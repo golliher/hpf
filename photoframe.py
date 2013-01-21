@@ -49,6 +49,11 @@ bgcolor = black
 class RpcServerProtocol(WampServerProtocol):
 
     @exportRpc
+    def getcurrentshow(self):
+        result = list_currentshow()
+        return result
+        
+    @exportRpc
     def switch(self, show):
         switch_shows(show)
         result = "Newwork call to -> Switch to %s" % show
@@ -257,6 +262,9 @@ def about_screen():
 
 def list_shows():
     return json.dumps(theframe.shows)
+    
+def list_currentshow():
+    return json.dumps(os.path.basename(theshow.path))
 
 def switch_shows(newshow):
     newshow = newshow -1 # fix off by one
