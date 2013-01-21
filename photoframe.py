@@ -13,6 +13,9 @@ from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 from twisted.python import log
 
+from twisted.web.server import Site
+from twisted.web.static import File
+
 from frame import frame
  
 from autobahn.websocket import WebSocketServerFactory, \
@@ -322,5 +325,10 @@ tick = LoopingCall(game_tick)
 tick.start(1.0 / DESIRED_FPS)
 
 msg("Hackers Photo Frame.",duration=2,bgcolor=grey,textcolor=white,alpha=255)
+
+print("Starting up webserver on 8080")
+webdir = File("./webroot")
+web = Site(webdir)
+reactor.listenTCP(8080, web)
 
 reactor.run()
