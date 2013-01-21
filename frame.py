@@ -8,6 +8,8 @@ class frame:
     activeshow = show()
     txtoverlay_isvisible = -1
     shows = []
+    current_image_filename = ""
+    current_image_url = ""
 
     def debug(this):
         print "Debug frame 1: %s" % this.txtoverlay_isvisible

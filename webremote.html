@@ -11,6 +11,7 @@
 	var sess;
 	var local_showlist = {};
 	var current_show = "DEFAULT";
+	var current_image_url = "";
 
 	function switchshow(targetshow) {
 		console.log("Switching shows to " + targetshow)
@@ -21,6 +22,7 @@
 	function advance() {
 		console.log("Advancing show")
 	    sess.call("http://localhost/frame#advance").then(ab.log);
+		get_currentimage_url();
 	}
 
 	function rewind() {
@@ -47,6 +49,25 @@
 			}
 		
 		    );
+	}
+
+	function get_currentimage_url() {
+		console.log("Asking for current image url")
+	    sess.call("http://localhost/frame#getcurrentimage").then(
+			function (jsonresult) {
+				console.log("MARK ONE");
+				// local_currentshow.items = jQuery.parseJSON(jsonresult);
+				// current_show = jsonresult;
+				current_show = "<a href='"+ jsonresult + "'>" + jsonresult + "</a>"
+				current_show = "<img width='300' src='"+ jsonresult + "'>"
+				
+				console.log("MARK TWO: " + current_show);
+				$('#currentImageURL').html(current_show);
+				// console.log($('#currentImageURL').text());
+			}
+		
+		    );
+		
 	}
 	
 	function get_currentshow() {
@@ -138,12 +159,15 @@
       <button onclick="stop();">Stop</button>
       <button onclick="start();">Start</button>
 <hr>
-<!--      <button onclick="get_currentshow();">Get Current Show 4</button>-->
-CURRENT SHOW: <span id="currentShow">--</span>
+<button onclick="get_currentimage_url();">Get Current Image</button><br>
+Current show: <span id="currentShow">--</span><br>
+<span id="currentImageURL">--</span>
+
 <hr>
 
 <!--      Open development console (press F12) to watch and press<br> -->
 Available shows:
+<span id="showsList">--</a>
    </p>
 </body>
 </html>

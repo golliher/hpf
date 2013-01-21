@@ -52,6 +52,12 @@ class RpcServerProtocol(WampServerProtocol):
     def getcurrentshow(self):
         result = list_currentshow()
         return result
+
+    @exportRpc
+    def getcurrentimage(self):
+        result = theframe.current_image_url
+        return result
+
         
     @exportRpc
     def switch(self, show):
@@ -241,6 +247,12 @@ def show_image_fullyqualified(imagefile):
 
 def show_image(imagefile):
     filepath = "%s/%s" % (theshow.path,imagefile)
+    theframe.current_image_filename = filepath
+    theframe.current_image_url = filepath[1:]  # Removing the "."
+    
+    print "Current image is: %s" % theframe.current_image_filename
+    print "Current image URL is: %s" % theframe.current_image_url
+    
     show_image_fullyqualified(filepath)
 
 def start_show():
