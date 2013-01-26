@@ -248,7 +248,8 @@ def show_image_fullyqualified(imagefile):
 def show_image(imagefile):
     filepath = "%s/%s" % (theshow.path,imagefile)
     theframe.current_image_filename = filepath
-    theframe.current_image_url = filepath[1:]  # Removing the "."
+    theframe.current_image_url = "http://192.168.4.77:8080" + filepath[1:]  # Removing the "."
+    
     
     print "Current image is: %s" % theframe.current_image_filename
     print "Current image URL is: %s" % theframe.current_image_url

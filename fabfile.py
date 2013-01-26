@@ -16,6 +16,8 @@ def deploy():
     put('photoframe-src/*.py','photo-frame-project', mode=0755)
     put('photoframe-src/*.sh','photo-frame-project', mode=0755)
     put('photoframe-src/webremote.html','photo-frame-project/webroot', mode=0644)
+    print "Copying Django project over"
+    put('photoframe-src/webremote','photo-frame-project')
     
 def kill():
     run('pkill -f "python ./photoframe.py"')
