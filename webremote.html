@@ -17,6 +17,7 @@
 		console.log("Switching shows to " + targetshow)
 	    sess.call("http://localhost/frame#switch", targetshow).then(ab.log);
 		get_currentshow();
+		get_currentimage_url();
 	}
 
 	function advance() {
@@ -62,6 +63,7 @@
 				current_show = "<img width='300' src='"+ jsonresult + "'>"
 				
 				console.log("MARK TWO: " + current_show);
+				console.log("Setting URL...");
 				$('#currentImageURL').html(current_show);
 				// console.log($('#currentImageURL').text());
 			}
@@ -122,6 +124,7 @@
 			   console.log("Connected!");
 				getlist();
 				get_currentshow();
+				get_currentimage_url();
 			   // establish a prefix, so we can abbreviate procedure URIs ..
 				// sess.prefix("calculator", "http://example.com/simple/calculator#");
 			   // session.prefix("calc", "http://localhost/calc#");
