@@ -236,6 +236,8 @@ def game_tick():
             elif event.key == K_RIGHT: advance_show()
             elif event.key == K_p: rewind_show()
             elif event.key == K_LEFT: rewind_show()
+            elif event.key == K_UP: switch_prev_show()
+            elif event.key == K_DOWN: switch_next_show()
             elif event.key == K_s: stop_show()
             elif event.key == K_g: start_show()
     draw_screen()
@@ -310,12 +312,26 @@ def list_shows():
 def list_currentshow():
     return json.dumps(os.path.basename(theshow.path))
 
+def switch_prev_show():
+    global theframe
+    newindex = theframe.activeshow_index
+    newindex = (newindex -1) % len(theframe.shows)
+    switch_shows( newindex )
+
+def switch_next_show():
+    global theframe
+    newindex = theframe.activeshow_index
+    newindex = (newindex +1) % len(theframe.shows)
+    switch_shows( newindex )
+
 def switch_shows(newshow):
     newshow = newshow -1 # fix off by one
     msg("Switching to show %s" % theframe.shows[newshow])
     global theshow
+    global theframe
     theshow = shows[newshow]
     show_image(theshow.current())
+    theframe.activeshow_index = newshow
     
 def advance_show():
     dmsg("Advancing...")
