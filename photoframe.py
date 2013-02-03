@@ -233,7 +233,9 @@ def game_tick():
             elif event.key == K_3: switch_shows(3)
             elif event.key == K_f: show_frame = show_frame * -1
             elif event.key == K_n: advance_show()
+            elif event.key == K_RIGHT: advance_show()
             elif event.key == K_p: rewind_show()
+            elif event.key == K_LEFT: rewind_show()
             elif event.key == K_s: stop_show()
             elif event.key == K_g: start_show()
     draw_screen()
