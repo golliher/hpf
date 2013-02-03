@@ -314,14 +314,14 @@ def list_currentshow():
 
 def switch_prev_show():
     global theframe
-    newindex = theframe.activeshow_index
-    newindex = (newindex -1) % len(theframe.shows)
+    newindex = (theframe.activeshow_index - 1) % len(theframe.shows)
+    newindex = newindex -2 # fix off by two?  How maddening..
     switch_shows( newindex )
 
 def switch_next_show():
     global theframe
-    newindex = theframe.activeshow_index
-    newindex = (newindex +1) % len(theframe.shows)
+    newindex = (theframe.activeshow_index + 1) % len(theframe.shows)
+    newindex = newindex -1 # fix off by one
     switch_shows( newindex )
 
 def switch_shows(newshow):
