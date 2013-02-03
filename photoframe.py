@@ -6,6 +6,8 @@ import os
 
 import json
 
+DEBUG = 1
+
 from pygame.locals import *
 from show import show
 
@@ -27,6 +29,20 @@ from autobahn.wamp import WampServerFactory, WampServerProtocol, exportRpc
 import watchdog
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+
+sys.path.append("webremote")
+os.environ['DJANGO_SETTINGS_MODULE'] = 'webremote.settings'
+from django.core.handlers.wsgi import WSGIHandler
+
+from twisted.application import internet, service
+from twisted.web import server, resource, wsgi, static
+from twisted.python import threadpool
+from twisted.internet import reactor
+from twisted.internet import defer
+
+import twresource
+
+PORT = 8080
 
 class MyEventHandler(FileSystemEventHandler):   
    """Reacts to changes on the filesystem."""
@@ -106,6 +122,12 @@ class RpcServerProtocol(WampServerProtocol):
 
 def hide_msg():
     theframe.txtoverlay_isvisible = -1
+
+def dmsg(message, duration=3, bgcolor=grey, textcolor=white, alpha=200):
+    global DEBUG
+    if DEBUG > 0:
+        msg(message, duration, bgcolor, textcolor, alpha)
+    
     
 def msg(message, duration=3, bgcolor=grey, textcolor=white,alpha=200):
     """Display some text at bottom of the screen"""
@@ -189,6 +211,7 @@ show_frame = -1
 def game_tick():
     
     global show_frame
+    global DEBUG
     for event in pygame.event.get():
         if event.type == QUIT:
             return
@@ -197,7 +220,12 @@ def game_tick():
                 # observer.stop()
                 reactor.stop()
                 return
-            elif event.key == K_d: pass # used for debugging
+            elif event.key == K_d: 
+                DEBUG = DEBUG * -1
+                if DEBUG > 0: 
+                    msg("Debug ON")
+                else:
+                    msg("Debug OFF")
             elif event.key == K_c: theframe.txtoverlay_isvisible = theframe.txtoverlay_isvisible * -1  # "Toggling message visibility"
             elif event.key == K_a: about_screen()
             elif event.key == K_1: switch_shows(1)
@@ -248,7 +276,8 @@ def show_image_fullyqualified(imagefile):
 def show_image(imagefile):
     filepath = "%s/%s" % (theshow.path,imagefile)
     theframe.current_image_filename = filepath
-    theframe.current_image_url = "http://192.168.4.77:8080" + filepath[1:]  # Removing the "."
+    # theframe.current_image_url = "http://192.168.4.77:8080" + filepath[1:]  # Removing the "."
+    theframe.current_image_url =  filepath[1:]  # Removing the "."
     
     
     print "Current image is: %s" % theframe.current_image_filename
@@ -287,8 +316,11 @@ def switch_shows(newshow):
     show_image(theshow.current())
     
 def advance_show():
+    dmsg("Advancing...")
     theshow.next()
+    dmsg("Displaying image...")
     show_image(theshow.current())   
+    dmsg("Done.")
 
 def rewind_show():
     print "calling show image with:%s" % theshow.current()
@@ -347,9 +379,33 @@ tick.start(1.0 / DESIRED_FPS)
 
 msg("Hackers Photo Frame.",duration=2,bgcolor=grey,textcolor=white,alpha=255)
 
-print("Starting up webserver on 8080")
-webdir = File("./webroot")
-web = Site(webdir)
-reactor.listenTCP(8080, web)
+def wsgi_resource():
+    pool = threadpool.ThreadPool()
+    pool.start()
+    # Allow Ctrl-C to get you out cleanly:
+    reactor.addSystemEventTrigger('after', 'shutdown', pool.stop)
+    wsgi_resource = wsgi.WSGIResource(reactor, pool, WSGIHandler())
+    return wsgi_resource
 
+
+# Twisted Application Framework setup:
+application = service.Application('twisted-django')
+
+# WSGI container for Django, combine it with twisted.web.Resource:
+# XXX this is the only 'ugly' part: see the 'getChild' method in twresource.Root 
+wsgi_root = wsgi_resource()
+root = twresource.Root(wsgi_root)
+
+# Servce Django media files off of /media:
+showssrc = static.File(os.path.join(os.path.abspath("."), "./webroot/shows"))
+root.putChild("shows", showssrc)
+
+staticrsrc = static.File(os.path.join(os.path.abspath("."), "./static"))
+root.putChild("static", staticrsrc)
+
+# Serve it up:
+main_site = server.Site(root)
+# internet.TCPServer(PORT, main_site).setServiceParent(application)
+reactor.listenTCP(PORT, main_site)
 reactor.run()
+
