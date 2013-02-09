@@ -326,9 +326,9 @@ def switch_next_show():
 
 def switch_shows(newshow):
     newshow = newshow -1 # fix off by one
-    msg("Switching to show %s" % theframe.shows[newshow])
     global theshow
     global theframe
+    msg("Switching to show %s" % theframe.shows[newshow])
     theshow = shows[newshow]
     show_image(theshow.current())
     theframe.activeshow_index = newshow
