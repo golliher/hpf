@@ -106,9 +106,11 @@ hpfinit = function() {
 		function (session) {
 		   sess = session;
 		   console.log("Connected!");
-			getlist();
-			get_currentshow();
-			get_currentimage_url();
+
+            // getlist();
+            // get_currentshow();
+            // get_currentimage_url();
+
 		   // establish a prefix, so we can abbreviate procedure URIs ..
 			// sess.prefix("calculator", "http://example.com/simple/calculator#");
 		   // session.prefix("calc", "http://localhost/calc#");

@@ -1,3 +1,19 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
+{% block onload_functions %}
+
+	// HACK:  This is an ugly hack to give session time to be established.
+	//   This is probably unrelisable -- there should be a callback, signal or something to trigger on
+	setTimeout(function() {
+	getlist();
+	get_currentshow();
+	get_currentimage_url();
+	}, 100);
+
+{% endblock %}
+
+{% block title %}
+Main page
+{% endblock %}
+
