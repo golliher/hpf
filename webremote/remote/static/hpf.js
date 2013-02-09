@@ -21,6 +21,7 @@ function advance() {
 function rewind() {
 	console.log("Rewinding show")
     sess.call("http://localhost/frame#rewind").then(ab.log);
+	get_currentimage_url();
 }
 
 function stop() {
@@ -90,11 +91,11 @@ function showlist() {
 	console.log(json)
 	$(json.items).each(function(index, item) {
 	    ul.prepend(
-	        $(document.createElement('div')).html('<button onclick="switchshow('+ (index +1)  + ');">'+ item +'</button><hr>')
+	        $(document.createElement('div')).html('<button class="btn" onclick="switchshow('+ (index +1)  + ');">'+ item +'</button><hr>')
 	    );
 	});
     // ul.appendTo('body');
-	$('div#showsList').replaceWith(ul);
+	$('ul#showsList').replaceWith(ul);
 }
 
 hpfinit = function() {
@@ -108,6 +109,7 @@ hpfinit = function() {
 		function (session) {
 		   sess = session;
 		   console.log("Connected!");
+           $('a#prog-name').css({color:'lightgreen'});
 
             // getlist();
             // get_currentshow();
@@ -120,7 +122,27 @@ hpfinit = function() {
 
       // WAMP session is gone
       function (code, reason) {
+          switch (reason) {
+            case ab.CONNECTION_CLOSED:
+               console.log("Connection was closed properly - done.");
+               break;
+            case ab.CONNECTION_UNREACHABLE:
+               console.log("Connection could not be established.");
+               break;
+            case ab.CONNECTION_UNSUPPORTED:
+               console.log("Browser does not support WebSocket.");
+               break;
+            case ab.CONNECTION_LOST:
+               console.log("Connection lost - reconnecting ...");
+
+               // automatically reconnect after 1s
+               window.setTimeout(connect, 1000);
+               break;
+          }
          // things to do once the session fails
+                 console.log("Connection is down.");
+                 $('a#prog-name').css({color:'red'});
+                 
       }
    );
 
