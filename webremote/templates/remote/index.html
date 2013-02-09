@@ -9,7 +9,12 @@
 	getlist();
 	get_currentshow();
 	get_currentimage_url();
-	}, 100);
+	}, 200); 
+	<!-- Note: 100 wasn't a long enough timeout on iphone.  Had to raise to 200.  What a hack. -->
+
+{% endblock %}
+
+{% block extrascripts %}
 
 {% endblock %}
 
