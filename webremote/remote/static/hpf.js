@@ -83,7 +83,7 @@ function showlist() {
 	console.log("Showing for list MARK")
     console.log(local_showlist)
 
-	var ul = $('<ul>').appendTo('body');
+    var ul = $("<ul>");
 	var json = { items: ['item 1', 'item 2', 'item 3'] };
 	json = local_showlist;
     // console.log("Faked json");
@@ -93,6 +93,8 @@ function showlist() {
 	        $(document.createElement('div')).html('<button onclick="switchshow('+ (index +1)  + ');">'+ item +'</button><hr>')
 	    );
 	});
+    // ul.appendTo('body');
+	$('div#showsList').replaceWith(ul);
 }
 
 hpfinit = function() {
