@@ -1,8 +1,9 @@
 {% load staticfiles %}
 
 <!DOCTYPE html>
-<html>
+<html lang-"eng">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes" />
    <head>
 	<title> HPF : 
 	{% block title %}
@@ -27,8 +28,17 @@
 	<script type="text/javascript" src="{% static "code.photoswipe.jquery-3.0.5.min.js" %}" ></script>
 	<script type="text/javascript" src="{% static "hpf.js" %}" ></script>
 	<script type="text/javascript" src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+	<script>
+	function fullscreen() {
+	    $('a').click(function() {
+	        if(!$(this).hasClass('noeffect')) {
+	            window.location = $(this).attr('href');
+	            return false;
+	        }
+	    });
+	}
 
-
+	</script>
 
 {% block extrascripts %}
 {% endblock %}
@@ -36,6 +46,7 @@
 	<script>
 	window.onload = function() {
 	    hpfinit();
+		fullscreen();
 		
 		{% block onload_functions %}
 		{% endblock %}
@@ -61,7 +72,8 @@
               <li><a href="/list">Upload a new image</a></li>
               <li><a href="#about">About</a></li>
               <li><a href="#contact">Contact</a></li>
-              <li><a href="#contact">Show</a></li>
+              <li><a href="#showsList">Shows</a></li>
+
             </ul>
           </div><!--/.nav-collapse -->
         </div>
@@ -76,21 +88,23 @@
    <noscript>
       <span style="color: #f00; font-weight: bold;">   You need to turn on JavaScript.    </span>
    </noscript>
-   <p>
-      <button class="btn btn-block btn-large" onclick="advance();"> Forward </button>
-      <button class="btn btn-block btn-large" onclick="rewind();"> Back </button>
-<hr>
-      <button class="btn" onclick="stop();"> Stop </button>
-      <button class="btn" onclick="start();"> Start </button>
-      <button class="btn" onclick="get_currentimage_url();">Get Current Image</button>
-<br>
-Current show: <span id="currentShow">--</span><br>
+
+<a href="#show-chooser"><div class="well">Showing:  <span id="currentShow">--</span></div></a>
+<button class="btn btn-block btn-large" onclick="advance();"> Next <i class='icon-forward'></i></button>
+<div id="frame-image" style="width:275px;height:166px;background-color:black"> 
 <span id="currentImageURL">--</span>
+</div>
+<button class="btn btn-block btn-large" onclick="rewind();" > <i class='icon-backward'></i> Previous 	</button>
 
 <hr>
-<br>Available shows:<br>
-<ul id="showsList" class="nav">--</ul>
-
+<button class="btn" onclick="stop();"> Stop </button>
+<button class="btn" onclick="start();"> Start </button>
+<button class="btn" onclick="get_currentimage_url();">Get Current Image</button>
+<hr>
+<div class="well" id="show-chooser">
+<h3>Available shows</h3>
+<div id="showsList">--<div>
+</div>
 <a href="http://open.spotify.com/track/3uGbeMzmnWmE2bJNeVElrr">This is the end my friend.</a>
 {% endblock %}
 </body>
