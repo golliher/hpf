@@ -10,6 +10,8 @@ function switchshow(targetshow) {
     sess.call("http://localhost/frame#switch", targetshow).then(ab.log);
 	get_currentshow();
 	get_currentimage_url();
+    // window.scrollTo(0,0);
+    $("html, body").animate({ scrollTop: 0 });
 }
 
 function advance() {
@@ -53,7 +55,7 @@ function get_currentimage_url() {
 			// local_currentshow.items = jQuery.parseJSON(jsonresult);
 			// current_show = jsonresult;
 			current_show = "<a href='"+ jsonresult + "'>" + jsonresult + "</a>"
-			current_show = "<img width='300' src='"+ jsonresult + "'>"
+			current_show = "<img style='max-width:100%; max-height:100%;  display: block; margin-left: auto; margin-right: auto' src='"+ jsonresult + "'>"
 			
 			console.log("MARK TWO: " + current_show);
 			console.log("Setting URL...");
@@ -84,18 +86,17 @@ function showlist() {
 	console.log("Showing for list MARK")
     console.log(local_showlist)
 
-    var ul = $("<ul>");
+    var showlist_div = $("<div>");
 	var json = { items: ['item 1', 'item 2', 'item 3'] };
 	json = local_showlist;
     // console.log("Faked json");
 	console.log(json)
 	$(json.items).each(function(index, item) {
-	    ul.prepend(
-	        $(document.createElement('div')).html('<button class="btn" onclick="switchshow('+ (index +1)  + ');">'+ item +'</button><hr>')
+	    showlist_div.prepend(
+	        $(document.createElement('div')).html('<button class="btn btn-large btn-block" onclick="switchshow('+ (index +1)  + ');">'+ item +'</button>')
 	    );
 	});
-    // ul.appendTo('body');
-	$('ul#showsList').replaceWith(ul);
+	$('div#showsList').replaceWith(showlist_div);
 }
 
 hpfinit = function() {
