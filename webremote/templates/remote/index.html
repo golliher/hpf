@@ -3,13 +3,13 @@
 
 {% block onload_functions %}
 
-	// HACK:  This is an ugly hack to give session time to be established.
-	//   This is probably unrelisable -- there should be a callback, signal or something to trigger on
-	setTimeout(function() {
-	getlist();
-	get_currentshow();
-	get_currentimage_url();
-	}, 500); 
+	<!-- // HACK:  This is an ugly hack to give session time to be established.
+	//   This is probably unrelisable -- there should be a callback, signal or something to trigger on -->
+	<!-- setTimeout(function() { -->
+	<!-- getlist(); -->
+	<!-- get_currentshow(); -->
+	<!-- get_currentimage_url(); -->
+	<!-- }, 500);  -->
 	<!-- Note: 100 wasn't a long enough timeout on iphone.  Had to raise to 200.  What a hack. -->
 
 {% endblock %}
