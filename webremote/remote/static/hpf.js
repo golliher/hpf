@@ -40,7 +40,6 @@ function getlist() {
     sess.call("http://localhost/frame#showlist").then(
 		function (jsonresult) {
 			local_showlist.items = jQuery.parseJSON(jsonresult);
-			console.log("Initialized shows with: " + local_showlist);
             showlist();
 		}
 	
@@ -51,16 +50,16 @@ function get_currentimage_url() {
 	console.log("Asking for current image url")
     sess.call("http://localhost/frame#getcurrentimage").then(
 		function (jsonresult) {
-			console.log("MARK ONE");
 			// local_currentshow.items = jQuery.parseJSON(jsonresult);
 			// current_show = jsonresult;
 			current_show = "<a href='"+ jsonresult + "'>" + jsonresult + "</a>"
 			current_show = "<img style='max-width:100%; max-height:100%;  display: block; margin-left: auto; margin-right: auto' src='"+ jsonresult + "'>"
 			
-			console.log("MARK TWO: " + current_show);
 			console.log("Setting URL...");
 			$('#currentImageURL').html(current_show);
 			// console.log($('#currentImageURL').text());
+			get_currentshow();
+			getlist();
 		}
 	
 	    );
@@ -70,12 +69,10 @@ function get_currentshow() {
 	console.log("Asking for current show")
     sess.call("http://localhost/frame#getcurrentshow").then(
 		function (jsonresult) {
-			console.log("MARK ONE");
 			// local_currentshow.items = jQuery.parseJSON(jsonresult);
 			current_show = jsonresult;
-			console.log("MARK TWO: " + jsonresult);
 			$('#currentShow').text(jsonresult);
-			console.log($('#currentShow').text());
+			console.log("Current show: " + $('#currentShow').text() );
 		}
 	
 	    );
@@ -84,13 +81,10 @@ function get_currentshow() {
 
 function showlist() {
 	console.log("Showing for list MARK")
-    console.log(local_showlist)
 
     var showlist_div = $("<div>");
 	var json = { items: ['item 1', 'item 2', 'item 3'] };
 	json = local_showlist;
-    // console.log("Faked json");
-	console.log(json)
 	$(json.items).each(function(index, item) {
 	    showlist_div.prepend(
 	        $(document.createElement('div')).html('<button class="btn btn-large btn-block" onclick="switchshow('+ (index +1)  + ');">'+ item +'</button>')
@@ -112,10 +106,11 @@ hpfinit = function() {
 		   console.log("Connected!");
            $('a#prog-name').css({color:'lightgreen'});
 
-            // getlist();
-            // get_currentshow();
-            // get_currentimage_url();
+            getlist();
+            get_currentshow();
+            get_currentimage_url();
 
+            console.log("Alpha-one");
 		   // establish a prefix, so we can abbreviate procedure URIs ..
 			// sess.prefix("calculator", "http://example.com/simple/calculator#");
 		   // session.prefix("calc", "http://localhost/calc#");
