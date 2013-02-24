@@ -93,6 +93,22 @@ function showlist() {
 	$('div#showsList').replaceWith(showlist_div);
 }
 
+function subscribe_image() {
+    console.log("Subscribing");
+    sess.subscribe("http://localhost/image", onImageEvent);
+}
+ 
+function onImageEvent(topicUri, event) {
+    
+    current_show = "<a href='"+ event + "'>" + event + "</a>"
+	current_show = "<img style='max-width:100%; max-height:100%;  display: block; margin-left: auto; margin-right: auto' src='"+ event + "'>"
+	console.log("Setting URL...");
+	$('#currentImageURL').html(current_show);
+	
+   console.log(topicUri);
+   console.log(event);
+}
+
 hpfinit = function() {
 
    // connect to WAMP server
@@ -109,6 +125,8 @@ hpfinit = function() {
             getlist();
             get_currentshow();
             get_currentimage_url();
+
+            subscribe_image();
 
             console.log("Alpha-one");
 		   // establish a prefix, so we can abbreviate procedure URIs ..
