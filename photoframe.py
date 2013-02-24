@@ -119,6 +119,11 @@ class RpcServerProtocol(WampServerProtocol):
 
     def onSessionOpen(self):
         self.registerForRpc(self, "http://localhost/frame#")
+        
+        ## register a single, fixed URI as PubSub topic
+        self.registerForPubSub("http://localhost/image")
+        print "Registered for PubSub on /image topic."
+        
 
 def hide_msg():
     theframe.txtoverlay_isvisible = -1
@@ -286,6 +291,8 @@ def show_image(imagefile):
     
     print "Current image is: %s" % theframe.current_image_filename
     print "Current image URL is: %s" % theframe.current_image_url
+    factory.dispatch("http://localhost/image",theframe.current_image_url)
+    
     
     show_image_fullyqualified(filepath)
 
