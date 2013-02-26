@@ -39,7 +39,9 @@ function getlist() {
 	console.log("Asking for list")
     sess.call("http://localhost/frame#showlist").then(
 		function (jsonresult) {
-			local_showlist.items = jQuery.parseJSON(jsonresult);
+		    console.log("Received list");
+		    console.log(jsonresult);
+            local_showlist.items = jQuery.parseJSON(jsonresult);
             showlist();
 		}
 	
@@ -82,7 +84,7 @@ function get_currentshow() {
 function showlist() {
 	console.log("Showing for list MARK")
 
-    var showlist_div = $("<div>");
+    var showlist_div = $("<div id='showsList'>");
 	var json = { items: ['item 1', 'item 2', 'item 3'] };
 	json = local_showlist;
 	$(json.items).each(function(index, item) {
@@ -90,6 +92,9 @@ function showlist() {
 	        $(document.createElement('div')).html('<button class="btn btn-large btn-block" onclick="switchshow('+ (index +1)  + ');">'+ item +'</button>')
 	    );
 	});
+    console.log(showlist_div);
+    // showlist_div.attr("id") = "showsList";
+
 	$('div#showsList').replaceWith(showlist_div);
 }
 
@@ -108,6 +113,11 @@ function subscribe_show() {
 
     sess.subscribe("http://localhost/currentshow", onShowEvent);
 }
+function subscribe_status() {
+    console.log("Subscribing status changes");
+
+    sess.subscribe("http://localhost/status", onStatusEvent);
+}
 
 
 function onMsgEvent(topicUri, event) {
@@ -124,6 +134,21 @@ function onMsgEvent(topicUri, event) {
    // console.log(topicUri);
    console.log(event);
 }
+
+function onStatusEvent(topicUri, event) {
+   console.log("Status update: ", event);
+   switch(event)
+   {
+       case 'show-list-rebuilt':
+            getlist();
+            break;
+        default:
+            console.log("No event case matched: ", event);
+   }
+
+   // $('#currentShow').text(event);
+}
+
 
 function onShowEvent(topicUri, event) {
    console.log("SHOW EVENT: ", event);
@@ -163,6 +188,7 @@ hpfinit = function() {
             subscribe_image();
             subscribe_msg();
             subscribe_show();
+            subscribe_status();
 
 
             console.log("Alpha-one");

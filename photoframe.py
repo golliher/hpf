@@ -130,6 +130,8 @@ class RpcServerProtocol(WampServerProtocol):
         self.registerForPubSub("http://localhost/currentshow")
         print "Registered for PubSub on /currentshow topic."
         
+        self.registerForPubSub("http://localhost/status")
+        print "Registered for PubSub on /status topic."
         
 
 def hide_msg():
@@ -386,6 +388,9 @@ def scan_for_shows():
         # This merely contains show names
         theframe.shows.append(os.path.basename(show_dir))
     print "Numbers of shows is NOW: %s" % len(shows)
+    dmsg("List of shows was rebuilt")
+    factory.dispatch("http://localhost/status",'show-list-rebuilt')
+    
     
 
 # An instance of the frame class, intended to be used as a signleton
