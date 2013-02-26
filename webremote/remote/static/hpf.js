@@ -94,9 +94,31 @@ function showlist() {
 }
 
 function subscribe_image() {
-    console.log("Subscribing");
+    console.log("Subscribing image changes");
     sess.subscribe("http://localhost/image", onImageEvent);
 }
+
+function subscribe_msg() {
+    console.log("Subscribing messages");
+
+    sess.subscribe("http://localhost/msg", onMsgEvent);
+}
+
+function onMsgEvent(topicUri, event) {
+    
+    // $('#currentImageURL').html(current_show);
+    fullMsg = "";
+    // frameMessage
+    if (event) {
+        fullMsg = '<div class="alert alert-info">' + event +  '</div>';
+    }
+    
+    $('#frameMessage').html(fullMsg);
+	
+   // console.log(topicUri);
+   console.log(event);
+}
+
  
 function onImageEvent(topicUri, event) {
     
@@ -106,7 +128,7 @@ function onImageEvent(topicUri, event) {
 	$('#currentImageURL').html(current_show);
 	
    console.log(topicUri);
-   console.log(event);
+   console.log("MESSAGE ON FRAME: ", event);
 }
 
 hpfinit = function() {
@@ -127,6 +149,7 @@ hpfinit = function() {
             get_currentimage_url();
 
             subscribe_image();
+            subscribe_msg();
 
             console.log("Alpha-one");
 		   // establish a prefix, so we can abbreviate procedure URIs ..

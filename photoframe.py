@@ -124,9 +124,14 @@ class RpcServerProtocol(WampServerProtocol):
         self.registerForPubSub("http://localhost/image")
         print "Registered for PubSub on /image topic."
         
+        self.registerForPubSub("http://localhost/msg")
+        print "Registered for PubSub on /msg topic."
+        
+        
 
 def hide_msg():
     theframe.txtoverlay_isvisible = -1
+    factory.dispatch("http://localhost/msg","")
 
 def dmsg(message, duration=3, bgcolor=grey, textcolor=white, alpha=200):
     global DEBUG
@@ -153,6 +158,9 @@ def msg(message, duration=3, bgcolor=grey, textcolor=white,alpha=200):
     reactor.callLater(duration, hide_msg)
 
     draw_screen()
+    factory.dispatch("http://localhost/msg",message)
+
+    
     return
             
 def aspect_scale(img,(bx,by)):
