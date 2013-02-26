@@ -6,7 +6,7 @@ import os
 
 import json
 
-DEBUG = 1
+DEBUG = -1
 
 from pygame.locals import *
 from show import show
