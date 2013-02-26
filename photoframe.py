@@ -126,6 +126,9 @@ class RpcServerProtocol(WampServerProtocol):
         
         self.registerForPubSub("http://localhost/msg")
         print "Registered for PubSub on /msg topic."
+
+        self.registerForPubSub("http://localhost/currentshow")
+        print "Registered for PubSub on /currentshow topic."
         
         
 
@@ -344,6 +347,8 @@ def switch_shows(newshow):
     global theshow
     global theframe
     msg("Switching to show %s" % theframe.shows[newshow])
+    factory.dispatch("http://localhost/currentshow",theframe.shows[newshow])
+    
     theshow = shows[newshow]
     show_image(theshow.current())
     theframe.activeshow_index = newshow

@@ -103,6 +103,12 @@ function subscribe_msg() {
 
     sess.subscribe("http://localhost/msg", onMsgEvent);
 }
+function subscribe_show() {
+    console.log("Subscribing current show");
+
+    sess.subscribe("http://localhost/currentshow", onShowEvent);
+}
+
 
 function onMsgEvent(topicUri, event) {
     
@@ -117,6 +123,12 @@ function onMsgEvent(topicUri, event) {
 	
    // console.log(topicUri);
    console.log(event);
+}
+
+function onShowEvent(topicUri, event) {
+   console.log("SHOW EVENT: ", event);
+   $('#currentShow').text(event);
+
 }
 
  
@@ -150,6 +162,8 @@ hpfinit = function() {
 
             subscribe_image();
             subscribe_msg();
+            subscribe_show();
+
 
             console.log("Alpha-one");
 		   // establish a prefix, so we can abbreviate procedure URIs ..
