@@ -6,7 +6,7 @@ import os
 
 import json
 
-DEBUG = 1
+DEBUG = -1
 
 from pygame.locals import *
 from show import show
@@ -124,9 +124,19 @@ class RpcServerProtocol(WampServerProtocol):
         self.registerForPubSub("http://localhost/image")
         print "Registered for PubSub on /image topic."
         
+        self.registerForPubSub("http://localhost/msg")
+        print "Registered for PubSub on /msg topic."
+
+        self.registerForPubSub("http://localhost/currentshow")
+        print "Registered for PubSub on /currentshow topic."
+        
+        self.registerForPubSub("http://localhost/status")
+        print "Registered for PubSub on /status topic."
+        
 
 def hide_msg():
     theframe.txtoverlay_isvisible = -1
+    factory.dispatch("http://localhost/msg","")
 
 def dmsg(message, duration=3, bgcolor=grey, textcolor=white, alpha=200):
     global DEBUG
@@ -153,6 +163,9 @@ def msg(message, duration=3, bgcolor=grey, textcolor=white,alpha=200):
     reactor.callLater(duration, hide_msg)
 
     draw_screen()
+    factory.dispatch("http://localhost/msg",message)
+
+    
     return
             
 def aspect_scale(img,(bx,by)):
@@ -336,6 +349,8 @@ def switch_shows(newshow):
     global theshow
     global theframe
     msg("Switching to show %s" % theframe.shows[newshow])
+    factory.dispatch("http://localhost/currentshow",theframe.shows[newshow])
+    
     theshow = shows[newshow]
     show_image(theshow.current())
     theframe.activeshow_index = newshow
@@ -373,6 +388,9 @@ def scan_for_shows():
         # This merely contains show names
         theframe.shows.append(os.path.basename(show_dir))
     print "Numbers of shows is NOW: %s" % len(shows)
+    dmsg("List of shows was rebuilt")
+    factory.dispatch("http://localhost/status",'show-list-rebuilt')
+    
     
 
 # An instance of the frame class, intended to be used as a signleton

@@ -10,7 +10,6 @@ function switchshow(targetshow) {
     sess.call("http://localhost/frame#switch", targetshow).then(ab.log);
 	get_currentshow();
 	get_currentimage_url();
-    // window.scrollTo(0,0);
     $("html, body").animate({ scrollTop: 0 });
 }
 
@@ -36,10 +35,12 @@ function start() {
     sess.call("http://localhost/frame#start").then(ab.log);
 }
 function getlist() {
-	console.log("Asking for list")
+	console.log("Asking for list of shows")
     sess.call("http://localhost/frame#showlist").then(
 		function (jsonresult) {
-			local_showlist.items = jQuery.parseJSON(jsonresult);
+		    console.log("Received list of shows");
+		    console.log(jsonresult);
+            local_showlist.items = jQuery.parseJSON(jsonresult);
             showlist();
 		}
 	
@@ -50,14 +51,10 @@ function get_currentimage_url() {
 	console.log("Asking for current image url")
     sess.call("http://localhost/frame#getcurrentimage").then(
 		function (jsonresult) {
-			// local_currentshow.items = jQuery.parseJSON(jsonresult);
-			// current_show = jsonresult;
+			console.log("Retrived current image URL");
 			current_show = "<a href='"+ jsonresult + "'>" + jsonresult + "</a>"
 			current_show = "<img style='max-width:100%; max-height:100%;  display: block; margin-left: auto; margin-right: auto' src='"+ jsonresult + "'>"
-			
-			console.log("Setting URL...");
 			$('#currentImageURL').html(current_show);
-			// console.log($('#currentImageURL').text());
 			get_currentshow();
 			getlist();
 		}
@@ -66,13 +63,12 @@ function get_currentimage_url() {
 }
 
 function get_currentshow() {
-	console.log("Asking for current show")
+	console.log("Asking for currently active show")
     sess.call("http://localhost/frame#getcurrentshow").then(
 		function (jsonresult) {
-			// local_currentshow.items = jQuery.parseJSON(jsonresult);
 			current_show = jsonresult;
 			$('#currentShow').text(jsonresult);
-			console.log("Current show: " + $('#currentShow').text() );
+			console.log("Received current show: " + $('#currentShow').text() );
 		}
 	
 	    );
@@ -80,17 +76,77 @@ function get_currentshow() {
 }
 
 function showlist() {
-	console.log("Showing for list MARK")
+	console.log("Updating UI with fresh list of shows")
 
-    var showlist_div = $("<div>");
-	var json = { items: ['item 1', 'item 2', 'item 3'] };
+    var showlist_div = $("<div id='showsList'>");
 	json = local_showlist;
 	$(json.items).each(function(index, item) {
 	    showlist_div.prepend(
 	        $(document.createElement('div')).html('<button class="btn btn-large btn-block" onclick="switchshow('+ (index +1)  + ');">'+ item +'</button>')
 	    );
 	});
+    console.log(showlist_div);
+
 	$('div#showsList').replaceWith(showlist_div);
+}
+
+function subscribe_image() {
+    console.log("Subscribing image changes");
+    sess.subscribe("http://localhost/image", onImageEvent);
+}
+
+function subscribe_msg() {
+    console.log("Subscribing messages");
+
+    sess.subscribe("http://localhost/msg", onMsgEvent);
+}
+function subscribe_show() {
+    console.log("Subscribing current show");
+
+    sess.subscribe("http://localhost/currentshow", onShowEvent);
+}
+function subscribe_status() {
+    console.log("Subscribing status changes");
+
+    sess.subscribe("http://localhost/status", onStatusEvent);
+}
+function onMsgEvent(topicUri, event) {
+    
+    fullMsg = "";
+    if (event) {
+        fullMsg = '<div class="alert alert-info">' + event +  '</div>';
+	    console.log("MESSAGE ON FRAME: ", event);
+    }
+    $('#frameMessage').html(fullMsg);
+}
+
+function onStatusEvent(topicUri, event) {
+   console.log("Status update: ", event);
+   switch(event)
+   {
+       case 'show-list-rebuilt':
+            getlist();
+            break;
+        default:
+            console.log("No event case matched: ", event);
+   }
+}
+
+
+function onShowEvent(topicUri, event) {
+   console.log("SHOW EVENT: ", event);
+   $('#currentShow').text(event);
+
+}
+
+function onImageEvent(topicUri, event) {
+    
+    current_show = "<a href='"+ event + "'>" + event + "</a>"
+	current_show = "<img style='max-width:100%; max-height:100%;  display: block; margin-left: auto; margin-right: auto' src='"+ event + "'>"
+	console.log("Updating frame image with fresh image URL");
+	$('#currentImageURL').html(current_show);
+	
+   console.log("EVENT: image changed to ", event);
 }
 
 hpfinit = function() {
@@ -110,7 +166,11 @@ hpfinit = function() {
             get_currentshow();
             get_currentimage_url();
 
-            console.log("Alpha-one");
+            subscribe_image();
+            subscribe_msg();
+            subscribe_show();
+            subscribe_status();
+
 		   // establish a prefix, so we can abbreviate procedure URIs ..
 			// sess.prefix("calculator", "http://example.com/simple/calculator#");
 		   // session.prefix("calc", "http://localhost/calc#");
