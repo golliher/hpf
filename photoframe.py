@@ -44,12 +44,29 @@ import twresource
 
 PORT = 8080
 
+def show_from_path(path):
+    """Extracts the show string from a given path"""
+    (dir,file) = os.path.split(path)
+    (base,show) = os.path.split(dir)
+    return show
+
 class MyEventHandler(FileSystemEventHandler):   
    """Reacts to changes on the filesystem."""
-   
-   def on_any_event(self, event):
-       print "Rescanning shows."
+
+   def on_created(self, event):
        scan_for_shows()
+       print "FSE CREATED so show %s" % event.src_path
+       show_image_fullyqualified(event.src_path)
+   
+   def on_modified(self, event):
+       scan_for_shows()
+       print "FSE MODIFIED so show %s" % event.src_path
+       show_image_fullyqualified(event.src_path)
+       
+   def on_any_event(self, event):
+       scan_for_shows()
+       print "FSE ANY Rescanning shows."
+       print "Watchdog event: %s" % event
 
 seconds_to_next_slide = 300
 
