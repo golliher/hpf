@@ -1,4 +1,5 @@
 # Django settings for webremote project.
+FRAMEIDENTITY = 'DEFAULT'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG

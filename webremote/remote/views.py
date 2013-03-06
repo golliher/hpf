@@ -8,9 +8,11 @@ from django.core.urlresolvers import reverse
 from remote.models import Document
 from remote.forms import DocumentForm
 
+from django.conf import settings
+
 def index(request):
-    # return HttpResponse("Hello, world. You're at the poll index.")
-    return render_to_response('remote/index.html')
+    context = {'frameidentity': settings.FRAMEIDENTITY}
+    return render_to_response('remote/index.html',context)
     
 def list(request):
     # Handle file upload
