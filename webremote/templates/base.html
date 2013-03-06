@@ -8,7 +8,7 @@
 	<title> HPF : 
 	{% block title %}
 	NO TITLE 
-	{% endblock %}
+	{% endblock %} - {{frameidentity}}
 	</title>
 	
 	<link href="{% static "photoswipe.css" %}" type="text/css" rel="stylesheet" />
@@ -65,7 +65,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand" href="/" id="prog-name" style="color:green">HPF remote</a> 
+          <a class="brand" href="/" id="prog-name" style="color:green">HPF remote - {{ frameidentity }}</a> 
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li class="active"><a href="/">Home</a></li>
