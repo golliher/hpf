@@ -459,6 +459,11 @@
 }
 
 @media (min-width: 768px) and (max-width: 979px) {
+    .frameimage {
+        width:100%;
+        background-color:black
+    }
+    
   .row {
     margin-left: -20px;
     *zoom: 1;
@@ -898,6 +903,13 @@
 }
 
 @media (max-width: 480px) {
+    
+    .frameimage {
+        width:275px;
+        height:166px;
+        background-color:black
+    }
+    
   .nav-collapse {
     -webkit-transform: translate3d(0, 0, 0);
   }
