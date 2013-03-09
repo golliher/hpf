@@ -1,0 +1,6 @@
+BeautifulSoup==3.2.1
+Django==1.4.3
+Fabric==1.5.1
+autobahn==0.5.9
+docutils==0.10
+watchdog

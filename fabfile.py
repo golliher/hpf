@@ -28,7 +28,6 @@ def deploy():
     print "Copying .py files over"
     put('*.py','photo-frame-project', mode=0755)
     put('*.sh','photo-frame-project', mode=0755)
-    put('webremote.html','photo-frame-project/webroot', mode=0644)
     print "Copying Django project over"
     put('webremote','photo-frame-project')
     print "Collecting static files"
