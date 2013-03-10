@@ -301,14 +301,10 @@ def show_image_fullyqualified(imagefile):
     xshift = (w - ix) / 2
     background.blit(img, (xshift,0))
 
-    try:
-        frame = pygame.image.load("./frame.png")
-        frame = pygame.transform.smoothscale(frame, (int(w),int(h)))
-    except:
-        msg("Failed to load frame overlay.")
-
+    global frame_img
+    
     if show_frame > 0:
-        background.blit(frame,(0,0))
+        background.blit(frame_img,(0,0))
         
     draw_screen()
 
@@ -317,7 +313,6 @@ def show_image(imagefile):
     theframe.current_image_filename = filepath
     # theframe.current_image_url = "http://192.168.4.77:8080" + filepath[1:]  # Removing the "."
     theframe.current_image_url =  filepath[1:]  # Removing the "."
-    
     
     print "Current image is: %s" % theframe.current_image_filename
     print "Current image URL is: %s" % theframe.current_image_url
@@ -447,6 +442,11 @@ def wsgi_resource():
     wsgi_resource = wsgi.WSGIResource(reactor, pool, WSGIHandler())
     return wsgi_resource
 
+try:
+    frame_img = pygame.image.load("./frame.png")
+    frame_img = pygame.transform.smoothscale(frame_img, (int(w),int(h)))
+except:
+    msg("Failed to load frame overlay.")
 
 # Twisted Application Framework setup:
 application = service.Application('twisted-django')
