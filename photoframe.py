@@ -346,14 +346,13 @@ def list_currentshow():
 
 def switch_prev_show():
     global theframe
-    newindex = (theframe.activeshow_index - 1) % len(theframe.shows)
-    newindex = newindex -2 # fix off by two?  How maddening..
+    newindex = (theframe.activeshow_index) % len(theframe.shows)  # we won't have to decement because two structures are already 'off by one'
     switch_shows( newindex )
 
 def switch_next_show():
     global theframe
     newindex = (theframe.activeshow_index + 1) % len(theframe.shows)
-    newindex = newindex -1 # fix off by one
+    newindex = newindex +1 # fix 'off by one' difference between the two structures
     switch_shows( newindex )
 
 def switch_shows(newshow):
