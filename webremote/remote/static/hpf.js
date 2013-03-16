@@ -161,6 +161,17 @@ function onImageEvent(topicUri, event) {
 
 hpfinit = function() {
 
+    $(document).keydown(function(evt) {
+        switch (evt.keyCode) {
+            case 39:  advance(); break;
+            case 37:  rewind(); break;
+            
+        }
+        
+
+
+        console.log(evt);
+      });
 
     $('.dropdown-toggle').dropdown()
 
