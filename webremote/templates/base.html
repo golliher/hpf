@@ -20,7 +20,10 @@
 	        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
 	      }
 	    </style>
-	    <link href="{%static "bootstrap/css/bootstrap-responsive.css" %}" rel="stylesheet">
+	    <link href="{% static "bootstrap/css/bootstrap-responsive.css" %}" rel="stylesheet">
+		<link href="{% static "hpf.css" %}" rel="stylesheet">
+
+
 
 	<script src="http://autobahn.s3.amazonaws.com/js/autobahn.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>	
@@ -56,7 +59,7 @@
 
    </head>
 
-<body style="background-color:lightblue">
+<body>
 
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
@@ -66,7 +69,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand" href="/" id="prog-name" style="color:green">HPF remote - {{ frameidentity }}</a> 
+          <a class="brand" href="/" id="prog-name">HPF remote - {{ frameidentity }}</a> 
           <div class="nav-collapse collapse">
             <ul class="nav">
 
@@ -99,19 +102,15 @@
       <span style="color: #f00; font-weight: bold;">   You need to turn on JavaScript.    </span>
    </noscript>
 
-<div id="maincontent" style="height: 50%">
-
-<span id="frameMessage"></span>
 <a href="#show-chooser"><div class="well">Showing:  <span id="currentShow">--</span></div></a>
 
 <button class="btn btn-block btn-large" onclick="advance();"> Next <i class='icon-forward'></i></button>
 
 <div id="frame-image" class="frameimage"> 
+	<span id="frameMessage"></span>
 <span id="currentImageURL">--</span>
 </div>
 <button class="btn btn-block btn-large" onclick="rewind();" > <i class='icon-backward'></i> Previous 	</button>
-
-</div>   <!-- Main Content div ends -->
 
 <hr>
 <button class="btn" onclick="stop();"> Stop </button>
