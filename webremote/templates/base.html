@@ -57,6 +57,7 @@
    </head>
 
 <body style="background-color:lightblue">
+
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -68,13 +69,22 @@
           <a class="brand" href="/" id="prog-name" style="color:green">HPF remote - {{ frameidentity }}</a> 
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li class="active"><a href="/">Home</a></li>
-              <li><a href="/list">Upload a new image</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
-              <li><a href="#showsList">Shows</a></li>
 
+              <li><a href="/list">Upload a new image</a></li>
+			
+
+  	          <li class="hidden-phone"><a data-target="#" data-toggle="dropdown" class="dropdown-toggle" href="#">Shows
+			          <b class="caret"></b>
+			        </a>
+		            	<ul id="showsmenu" class="dropdown-menu pull-right">
+			              <li><a href="/app/1">Item A</a></li>
+			              <li><a href="/app/2">Item B</a></li>
+			              <li><a href="/app/3">Item C</a></li>
+			            </ul>
+					</li>
             </ul>
+
+
           </div><!--/.nav-collapse -->
         </div>
       </div>
@@ -88,7 +98,6 @@
    <noscript>
       <span style="color: #f00; font-weight: bold;">   You need to turn on JavaScript.    </span>
    </noscript>
-
 <span id="frameMessage"></span>
 <a href="#show-chooser"><div class="well">Showing:  <span id="currentShow">--</span></div></a>
 
@@ -104,7 +113,7 @@
 <button class="btn" onclick="start();"> Start </button>
 <button class="btn" onclick="get_currentimage_url();">Refresh</button>
 <hr>
-<div class="well" id="show-chooser">
+<div class="well hidden-desktop" id="show-chooser">
 <h3>Available shows</h3>
 <div id="showsList">--<div>
 </div>

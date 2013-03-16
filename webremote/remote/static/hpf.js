@@ -79,14 +79,24 @@ function showlist() {
 	console.log("Updating UI with fresh list of shows")
 
     var showlist_div = $("<div id='showsList'>");
+    var showlist_list = $("<ul class='dropdown-menu pull-right'></ul>");
 	json = local_showlist;
 	$(json.items).each(function(index, item) {
-	    showlist_div.prepend(
-	        $(document.createElement('div')).html('<button class="btn btn-large btn-block" onclick="switchshow('+ (index +1)  + ');">'+ item +'</button>')
-	    );
+	console.log("DEBUG");
+    showlist_div.prepend(
+        $(document.createElement('div')).html('<button class="btn btn-large btn-block" onclick="switchshow('+ (index +1)  + ');">'+ item +'</button>')
+    );
+	    
+    showlist_list.prepend(
+    $(document.createElement('li')).html('<a onclick="switchshow(' + (index+1) + ')">' + item + '</a>')
+
+    );
+        
 	});
+	console.log(showlist_list);
     console.log(showlist_div);
 
+    $('ul#showsmenu').replaceWith(showlist_list);
 	$('div#showsList').replaceWith(showlist_div);
 }
 
@@ -151,9 +161,11 @@ function onImageEvent(topicUri, event) {
 
 hpfinit = function() {
 
+
+    $('.dropdown-toggle').dropdown()
+
    // connect to WAMP server
 	wsuri = "ws://" + window.location.hostname + ":9000";
-	// wsuri = "ws://192.168.4.77:9000";
 	ab.connect(wsuri,
       // WAMP session was established
          // things to do once the session has been established
