@@ -4,10 +4,10 @@ from fabric.utils import abort
 import os
 
 # The default host on which to deploy, etc
-env.hosts = ['192.168.4.77']
+env.hosts = ['192.168.4.44']
 env.collect_cmd = '/home/dgolliher/photo-frame-project/bin/python /home/dgolliher/photo-frame-project/webremote/manage.py collectstatic --noinput'
 
-def home2():
+def livingroom_pi():
     env.user = 'pi'
     env.hosts = ['192.168.4.76']
     env.collect_cmd = '/home/pi/photo-frame-project/bin/python /home/pi/photo-frame-project/webremote/manage.py collectstatic --noinput'
@@ -17,8 +17,8 @@ def officetv():
     env.hosts = ['192.168.4.17']
     env.collect_cmd = '/home/pi/photo-frame-project/bin/python /home/pi/photo-frame-project/webremote/manage.py collectstatic --noinput'
     
-def test():
-    env.hosts = ['192.168.4.77']
+def test(): # i.e. vmware on MBP
+    env.hosts = ['192.168.4.22']
     collect_cmd = '/home/dgolliher/photo-frame-project/bin/python /home/dgolliher/photo-frame-project/webremote/manage.py collectstatic --noinput'
 
 def deploy():
@@ -27,6 +27,7 @@ def deploy():
 
     print "Copying .py files over"
     put('*.py','photo-frame-project', mode=0755)
+    print "Copying .sh files over"
     put('*.sh','photo-frame-project', mode=0755)
     print "Copying Django project over"
     put('webremote','photo-frame-project')
