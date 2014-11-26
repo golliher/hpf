@@ -15,6 +15,8 @@ import json
 
 DEBUG = -1
 
+print "Darrell's toy photo frame"
+
 
 from show import show
 
@@ -24,6 +26,11 @@ from twisted.python import log
 
 from twisted.web.server import Site
 from twisted.web.static import File
+
+# log.startLogging(sys.stdout)
+
+log.startLogging(open('log.txt','w'))
+
 
 from frame import frame
 
@@ -49,6 +56,7 @@ from twisted.internet import reactor
 from twisted.internet import defer
 
 import twresource
+
 
 PORT = 8080
 
@@ -163,17 +171,13 @@ def hide_msg():
     theframe.txtoverlay_isvisible = -1
     factory.dispatch("http://localhost/msg","")
 
-
 def msg(message, duration=3, bgcolor=grey, textcolor=white,alpha=200):
     """Display some text at bottom of the screen"""
     print "msg: %s" % message
     theframe.txtoverlay_isvisible = 1
     factory.dispatch("http://localhost/msg",message)
     return
-# log.startLogging(sys.stdout)
-#log.startLogging(open('log.txt','w'))
 
-print "Darrell's toy photo frame"
 
 #  Setup RPC
 factory = WampServerFactory("ws://localhost:9000")
