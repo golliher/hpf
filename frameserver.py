@@ -10,61 +10,63 @@
 import sys
 import time
 import os
-
 import json
 
 DEBUG = -1
+PORT = 8080
+seconds_to_next_slide = 10
 
-print "Darrell's toy photo frame"
+# Start import of dependancy libraries
 
-
-from show import show
-
+# Twisted provides for cooperative multitasking between
+#  frameworks and also scheduling of deferred calls
+#  It is used for the primary event loop of this program.
+#
 from twisted.internet import reactor
+from twisted.application import internet, service
 from twisted.internet.task import LoopingCall
-from twisted.python import log
+from twisted.internet import defer
 
+from twisted.python import log
+from twisted.python import threadpool
+
+from twisted.web import server, resource, wsgi, static
 from twisted.web.server import Site
 from twisted.web.static import File
 
-# log.startLogging(sys.stdout)
-
-log.startLogging(open('log.txt','w'))
-
-
-from frame import frame
-
-
+# Autobahn is the library used to implement our client API for HPF
+#
+from autobahn.wamp import WampServerFactory, WampServerProtocol, exportRpc
 from autobahn.websocket import WebSocketServerFactory, \
                                WebSocketServerProtocol, \
                                listenWS
 
-from autobahn.wamp import WampServerFactory, WampServerProtocol, exportRpc
-
+# Watchdog is a library that pays attention to change on the filesystem
+#
 import watchdog
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-sys.path.append("webremote")
-os.environ['DJANGO_SETTINGS_MODULE'] = 'webremote.settings'
+# Django is used inside this program to provide web framework
+#  without having to run a standalone webserver and all that goes
+#  into configuring one.  Keeps deployment simple and keeps HPF
+#  self sufficient.
+import twresource
 from django.core.handlers.wsgi import WSGIHandler
 
-from twisted.application import internet, service
-from twisted.web import server, resource, wsgi, static
-from twisted.python import threadpool
-from twisted.internet import reactor
-from twisted.internet import defer
 
-import twresource
+# End import of dependancy libraries
 
 
-PORT = 8080
+# Print this before print statements get captured to the log.
+print "Darrell's toy photo frame"
 
-def show_from_path(path):
-    """Extracts the show string from a given path"""
-    (dir,file) = os.path.split(path)
-    (base,show) = os.path.split(dir)
-    return show
+# Print statements will go to log file starting here.
+log.startLogging(open('log.txt','w'))
+
+# Libraries I wrote to encapsulate my data model
+from show import show
+from frame import frame
 
 class MyEventHandler(FileSystemEventHandler):
    """Reacts to changes on the filesystem."""
@@ -84,16 +86,6 @@ class MyEventHandler(FileSystemEventHandler):
        print "FSE ANY Rescanning shows."
        print "Watchdog event: %s" % event
 
-seconds_to_next_slide = 10
-
-black = 0,0,0
-white = 250,250,250
-yellow = 255,242,0
-grey = 70, 70, 70
-
-textcolor = white
-bgcolor = black
-
 
 class RpcServerProtocol(WampServerProtocol):
 
@@ -107,24 +99,23 @@ class RpcServerProtocol(WampServerProtocol):
         result = theframe.current_image_url
         return result
 
-
     @exportRpc
     def switch(self, show):
         switch_shows(show)
-        result = "Newwork call to -> Switch to %s" % show
+        result = "Network call to -> Switch to %s" % show
         print result
         return result
 
     @exportRpc
     def advance(self):
-        result = "Newwork call to advance."
+        result = "Network call to advance."
         print result
         advance_show()
         return result
 
     @exportRpc
     def rewind(self):
-        result = "Newwork call to rewind."
+        result = "Network call to rewind."
         print result
         rewind_show()
         return result
@@ -132,14 +123,14 @@ class RpcServerProtocol(WampServerProtocol):
     @exportRpc
     def stop(self):
         stop_show()
-        result = "Newwork call to stop show."
+        result = "Network call to stop show."
         print result
         return result
 
     @exportRpc
     def start(self):
         start_show()
-        result = "Newwork call to start show."
+        result = "Network call to start show."
         print result
         return result
 
@@ -147,7 +138,6 @@ class RpcServerProtocol(WampServerProtocol):
     def showlist(self):
         result = list_shows()
         print result
-        # print dict(result)
         return result
 
     def onSessionOpen(self):
@@ -171,10 +161,13 @@ def hide_msg():
     theframe.txtoverlay_isvisible = -1
     factory.dispatch("http://localhost/msg","")
 
-def msg(message, duration=3, bgcolor=grey, textcolor=white,alpha=200):
+def msg(message, duration=3):
     """Display some text at bottom of the screen"""
     print "msg: %s" % message
     theframe.txtoverlay_isvisible = 1
+
+    reactor.callLater(duration, hide_msg)
+
     factory.dispatch("http://localhost/msg",message)
     return
 
@@ -185,8 +178,14 @@ factory.protocol = RpcServerProtocol
 listenWS(factory)
 
 
-global show_frame
-show_frame = -1
+
+
+def show_from_path(path):
+    """Extracts the show string from a given path"""
+    (dir,file) = os.path.split(path)
+    (base,show) = os.path.split(dir)
+    return show
+
 
 def show_image(imagefile):
     filepath = "%s/%s" % (theshow.path,imagefile)
@@ -252,7 +251,7 @@ def rewind_show():
 
 def scan_for_shows():
     print "SCANNING FOR SHOWS"
-    # We build the collection of shows
+    # We build the collection of shows from the files system
     global shows
 
     print "Numbers of shows is: %s" % len(shows)
@@ -274,6 +273,8 @@ def scan_for_shows():
     factory.dispatch("http://localhost/status",'show-list-rebuilt')
 
 
+## Main program starts here -- everything up until here was definition
+## of functions and setup.
 
 # An instance of the frame class, intended to be used as a signleton
 theframe = frame()
@@ -286,17 +287,21 @@ showobserver = Observer()
 showobserver.schedule(showchange_event_handler, "./shows", recursive=True)
 showobserver.start()
 
-print "assigning show shortcuts"
+print "Assigning show shortcut variables"
 
 theframe.activeshow = shows[0]
 theshow = shows[0]
+
 print "Current active path after loading: %s" % theframe.activeshow.path
 
-# Scheduled call to advance the show
+# Schedule call to advance the show at our desired update period
 show_tick = LoopingCall(advance_show)
 show_tick.start(seconds_to_next_slide)
 
-msg("Hackers Photo Frame.",duration=2,bgcolor=grey,textcolor=white,alpha=255)
+
+## Start DJango setup for serving images and build-in web client application.
+sys.path.append("webremote")
+os.environ['DJANGO_SETTINGS_MODULE'] = 'webremote.settings'
 
 def wsgi_resource():
     pool = threadpool.ThreadPool()
@@ -323,8 +328,11 @@ root.putChild("static", staticrsrc)
 
 # Serve it up:
 main_site = server.Site(root)
-# internet.TCPServer(PORT, main_site).setServiceParent(application)
 reactor.listenTCP(PORT, main_site)
+## Finish Django setup
+
+## Turn on the main Twisted event loop and make things go.
 reactor.run()
 
+## That's it, shows over.
 print "Reactor ran.  Then program terminated."
