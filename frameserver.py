@@ -163,11 +163,6 @@ def hide_msg():
     theframe.txtoverlay_isvisible = -1
     factory.dispatch("http://localhost/msg","")
 
-def dmsg(message, duration=3, bgcolor=grey, textcolor=white, alpha=200):
-    global DEBUG
-    if DEBUG > 0:
-        msg(message, duration, bgcolor, textcolor, alpha)
-
 
 def msg(message, duration=3, bgcolor=grey, textcolor=white,alpha=200):
     """Display some text at bottom of the screen"""
@@ -272,7 +267,6 @@ def scan_for_shows():
         # This merely contains show names
         theframe.shows.append(os.path.basename(show_dir))
     print "Numbers of shows is NOW: %s" % len(shows)
-    dmsg("List of shows was rebuilt")
     factory.dispatch("http://localhost/status",'show-list-rebuilt')
 
 
