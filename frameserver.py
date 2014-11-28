@@ -6,6 +6,7 @@
 
 # I will attempt to simply delete stuff first.. this started as a copy of
 #  photoframe.py. As of 11:48 PM I have it basically working without pygame!
+#
 
 import sys
 import time
@@ -279,8 +280,12 @@ def scan_for_shows():
 # An instance of the frame class, intended to be used as a signleton
 theframe = frame()
 shows = []
+
+# Do the initial read of shows on the file system.
 scan_for_shows()
 
+# Here we setup the use of the Watchdog framework, one of our external
+#  Dependancies to pickup future changes on the filesystem.
 print "Setting up observer for SHOWS DIRECTORY"
 showchange_event_handler = MyEventHandler()
 showobserver = Observer()
@@ -288,7 +293,6 @@ showobserver.schedule(showchange_event_handler, "./shows", recursive=True)
 showobserver.start()
 
 print "Assigning show shortcut variables"
-
 theframe.activeshow = shows[0]
 theshow = shows[0]
 
