@@ -23,12 +23,17 @@ seconds_to_next_slide = 10
 #  frameworks and also scheduling of deferred calls
 #  It is used for the primary event loop of this program.
 #
+
+# Used by autobahn for sure, others?
+from twisted.python import log
 from twisted.internet import reactor
+from twisted.internet.defer import inlineCallbacks
+from twisted.internet.endpoints import serverFromString
+
 from twisted.application import internet, service
 from twisted.internet.task import LoopingCall
 from twisted.internet import defer
 
-from twisted.python import log
 from twisted.python import threadpool
 
 from twisted.web import server, resource, wsgi, static
@@ -37,10 +42,10 @@ from twisted.web.static import File
 
 # Autobahn is the library used to implement our client API for HPF
 #
-from autobahn.wamp import WampServerFactory, WampServerProtocol, exportRpc
-from autobahn.websocket import WebSocketServerFactory, \
-                               WebSocketServerProtocol, \
-                               listenWS
+from autobahn.wamp import types
+from autobahn.twisted import wamp, websocket
+# from autobahn.twisted.util import sleep
+
 
 # Watchdog is a library that pays attention to change on the filesystem
 #
@@ -88,79 +93,83 @@ class MyEventHandler(FileSystemEventHandler):
        print "Watchdog event: %s" % event
 
 
-class RpcServerProtocol(WampServerProtocol):
+class HPFbackendComponent(wamp.ApplicationSession):
 
-    @exportRpc
-    def getcurrentshow(self):
-        result = list_currentshow()
-        return result
+    @inlineCallbacks
 
-    @exportRpc
-    def getcurrentimage(self):
-        result = theframe.current_image_url
-        return result
+    def onJoin(self,details):
 
-    @exportRpc
-    def switch(self, show):
-        switch_shows(show)
-        result = "Network call to -> Switch to %s" % show
-        print result
-        return result
+        def getcurrentshow(self):
+            # result = list_currentshow()
+            result = "STUB"
+            return result
 
-    @exportRpc
-    def advance(self):
-        result = "Network call to advance."
-        print result
-        advance_show()
-        return result
-
-    @exportRpc
-    def rewind(self):
-        result = "Network call to rewind."
-        print result
-        rewind_show()
-        return result
-
-    @exportRpc
-    def stop(self):
-        stop_show()
-        result = "Network call to stop show."
-        print result
-        return result
-
-    @exportRpc
-    def start(self):
-        start_show()
-        result = "Network call to start show."
-        print result
-        return result
-
-    @exportRpc
-    def showlist(self):
-        result = list_shows()
-        print result
-        return result
-
-    def onSessionOpen(self):
-        self.registerForRpc(self, "http://localhost/frame#")
-
-        ## register a single, fixed URI as PubSub topic
-        self.registerForPubSub("http://localhost/image")
-        print "Registered for PubSub on /image topic."
-
-        self.registerForPubSub("http://localhost/msg")
-        print "Registered for PubSub on /msg topic."
-
-        self.registerForPubSub("http://localhost/currentshow")
-        print "Registered for PubSub on /currentshow topic."
-
-        self.registerForPubSub("http://localhost/status")
-        print "Registered for PubSub on /status topic."
+    # @exportRpc
+    # def getcurrentimage(self):
+    #     result = theframe.current_image_url
+    #     return result
+    #
+    # @exportRpc
+    # def switch(self, show):
+    #     switch_shows(show)
+    #     result = "Network call to -> Switch to %s" % show
+    #     print result
+    #     return result
+    #
+    # @exportRpc
+    # def advance(self):
+    #     result = "Network call to advance."
+    #     print result
+    #     advance_show()
+    #     return result
+    #
+    # @exportRpc
+    # def rewind(self):
+    #     result = "Network call to rewind."
+    #     print result
+    #     rewind_show()
+    #     return result
+    #
+    # @exportRpc
+    # def stop(self):
+    #     stop_show()
+    #     result = "Network call to stop show."
+    #     print result
+    #     return result
+    #
+    # @exportRpc
+    # def start(self):
+    #     start_show()
+    #     result = "Network call to start show."
+    #     print result
+    #     return result
+    #
+    # @exportRpc
+    # def showlist(self):
+    #     result = list_shows()
+    #     print result
+    #     return result
+    #
+    # def onSessionOpen(self):
+    #     self.registerForRpc(self, "http://localhost/frame#")
+    #
+    #     ## register a single, fixed URI as PubSub topic
+    #     self.registerForPubSub("http://localhost/image")
+    #     print "Registered for PubSub on /image topic."
+    #
+    #     self.registerForPubSub("http://localhost/msg")
+    #     print "Registered for PubSub on /msg topic."
+    #
+    #     self.registerForPubSub("http://localhost/currentshow")
+    #     print "Registered for PubSub on /currentshow topic."
+    #
+    #     self.registerForPubSub("http://localhost/status")
+    #     print "Registered for PubSub on /status topic."
 
 
 def hide_msg():
     theframe.txtoverlay_isvisible = -1
-    factory.dispatch("http://localhost/msg","")
+    # factory.dispatch("http://localhost/msg","")
 
 def msg(message, duration=3):
     """Display some text at bottom of the screen"""
@@ -169,17 +178,29 @@ def msg(message, duration=3):
 
     reactor.callLater(duration, hide_msg)
 
-    factory.dispatch("http://localhost/msg",message)
+    # factory.dispatch("http://localhost/msg",message)
     return
 
 
-#  Setup RPC
-factory = WampServerFactory("ws://localhost:9000")
-factory.protocol = RpcServerProtocol
-listenWS(factory)
+#  Setup RPC (old)
+# factory = WampServerFactory("ws://localhost:9000")
+# factory.protocol = RpcServerProtocol
+# listenWS(factory)
 
+#
+router_factory = wamp.RouterFactory()
+session_factory = wamp.RouterSessionFactory(router_factory)
 
+component_config = types.ComponentConfig(realm = "hpf")
+component_session = HPFbackendComponent(component_config)
+session_factory.add(component_session)
 
+transport_factory = websocket.WampWebSocketServerFactory(session_factory,
+                                                            debug = True,
+                                                            debug_wamp = False)
+
+server = serverFromString(reactor, "tcp:9000")
+server.listen(transport_factory)
 
 def show_from_path(path):
     """Extracts the show string from a given path"""
@@ -196,7 +217,7 @@ def show_image(imagefile):
 
     print "Current image is: %s" % theframe.current_image_filename
     print "Current image URL is: %s" % theframe.current_image_url
-    factory.dispatch("http://localhost/image",theframe.current_image_url)
+    # factory.dispatch("http://localhost/image",theframe.current_image_url)
 
 def start_show():
     msg("GOING",duration=0.5)
@@ -234,7 +255,7 @@ def switch_shows(newshow):
     global theshow
     global theframe
     msg("Switching to show %s" % theframe.shows[newshow])
-    factory.dispatch("http://localhost/currentshow",theframe.shows[newshow])
+    # factory.dispatch("http://localhost/currentshow",theframe.shows[newshow])
 
     theshow = shows[newshow]
     show_image(theshow.current())
@@ -271,7 +292,7 @@ def scan_for_shows():
         # This merely contains show names
         theframe.shows.append(os.path.basename(show_dir))
     print "Numbers of shows is NOW: %s" % len(shows)
-    factory.dispatch("http://localhost/status",'show-list-rebuilt')
+    # factory.dispatch("http://localhost/status",'show-list-rebuilt')
 
 
 ## Main program starts here -- everything up until here was definition
@@ -331,8 +352,8 @@ staticrsrc = static.File(os.path.join(os.path.abspath("."), "./static"))
 root.putChild("static", staticrsrc)
 
 # Serve it up:
-main_site = server.Site(root)
-reactor.listenTCP(PORT, main_site)
+# main_site = server.Site(root)
+# reactor.listenTCP(PORT, main_site)
 ## Finish Django setup
 
 ## Turn on the main Twisted event loop and make things go.
