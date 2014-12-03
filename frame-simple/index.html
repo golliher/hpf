@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>Frame Simple</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<script src="https://autobahn.s3.amazonaws.com/autobahnjs/latest/autobahn.min.jgz">
+	</script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script type="text/javascript" src="./bootstrap.min.js"></script>
+	<script type="text/javascript" src "./klass.min.js" %} "> </script>
+	<script type="text/javascript" src="./hpf.js"> </script>
+	<script type="text/javascript" src="./screenfull.js"> </script>
+
+	<script>
+	window.onload = function() {
+	    hpfinit();
+	$('#frame-image').click(function () {
+		screenfull.toggle(this);
+	});
+	};
+
+	</script>
+
+</head>
+<body bgcolor="white">
+<br>
+
+<div id="frame-image" class="frameimage">
+	<span id="frameMessage"></span>
+<span id="currentImageURL">--</span>
+</div>
+</body>
+</html>
