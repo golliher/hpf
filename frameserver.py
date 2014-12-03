@@ -15,7 +15,7 @@ import json
 
 DEBUG = -1
 PORT = 8080
-seconds_to_next_slide = 10
+seconds_to_next_slide = 60
 
 # Start import of dependancy libraries
 
@@ -94,65 +94,122 @@ class MyEventHandler(FileSystemEventHandler):
 
 
 class HPFbackendComponent(wamp.ApplicationSession):
+    """Defines the behavior of the WAMP web service, both the PubSub and RPC"""
 
     @inlineCallbacks
 
     def onJoin(self,details):
 
-        def getcurrentshow(self):
-            # result = list_currentshow()
-            result = "STUB"
+        def getcurrentshow():
+            result = list_currentshow()
             return result
 
-    # @exportRpc
-    # def getcurrentimage(self):
-    #     result = theframe.current_image_url
-    #     return result
+        try:
+            yield self.register(getcurrentshow, 'com.hpf.getcurrentshow')
+        except Exception as e:
+            print("failed to register procedure: {}".format(e))
+        else:
+            print("procedure registered")
+
+
+        def getcurrentimage():
+            result = theframe.current_image_url
+            return result
+
+        try:
+            yield self.register(getcurrentimage, 'com.hpf.getcurrentimage')
+        except Exception as e:
+            print("failed to register procedure: {}".format(e))
+        else:
+            print("procedure registered")
+
+
+        def switch(show):
+            switch_shows(show)
+            result = "Network call to -> Switch to %s" % show
+            print result
+            return result
+
+        try:
+            yield self.register(switch, 'com.hpf.switch')
+        except Exception as e:
+            print("failed to register procedure: {}".format(e))
+        else:
+            print("procedure registered")
+
+
+        def advance():
+            result = "Network call to advance."
+            print result
+            advance_show()
+            return result
+
+        try:
+            yield self.register(advance, 'com.hpf.advance')
+        except Exception as e:
+            print("failed to register procedure: {}".format(e))
+        else:
+            print("procedure registered")
+
+        def rewind():
+            result = "Network call to rewind."
+            print result
+            rewind_show()
+            return result
+
+
+        try:
+            yield self.register(rewind, 'com.hpf.rewind')
+        except Exception as e:
+            print("failed to register procedure: {}".format(e))
+        else:
+            print("procedure registered")
+
+        def start():
+            start_show()
+            result = "Network call to start show."
+            print result
+            return result
+
+        try:
+            yield self.register(start, 'com.hpf.start')
+        except Exception as e:
+            print("failed to register procedure: {}".format(e))
+        else:
+            print("procedure registered")
+
+        def showlist():
+            result = list_shows()
+            print result
+            return result
+
+        try:
+            yield self.register(showlist, 'com.hpf.showlist')
+        except Exception as e:
+            print("failed to register procedure: {}".format(e))
+        else:
+            print("showlist procedure registered")
+
+        def stop():
+            stop_show()
+            result = "Network call to stop show."
+            print result
+            return result
+
+        try:
+            yield self.register(stop, 'com.hpf.stop')
+        except Exception as e:
+            print("failed to register procedure: {}".format(e))
+        else:
+            print("procedure registered")
+
     #
     # @exportRpc
-    # def switch(self, show):
-    #     switch_shows(show)
-    #     result = "Network call to -> Switch to %s" % show
-    #     print result
-    #     return result
-    #
-    # @exportRpc
-    # def advance(self):
-    #     result = "Network call to advance."
-    #     print result
-    #     advance_show()
-    #     return result
-    #
-    # @exportRpc
-    # def rewind(self):
-    #     result = "Network call to rewind."
-    #     print result
-    #     rewind_show()
-    #     return result
-    #
-    # @exportRpc
-    # def stop(self):
-    #     stop_show()
-    #     result = "Network call to stop show."
-    #     print result
-    #     return result
-    #
-    # @exportRpc
-    # def start(self):
-    #     start_show()
-    #     result = "Network call to start show."
-    #     print result
-    #     return result
-    #
-    # @exportRpc
-    # def showlist(self):
-    #     result = list_shows()
-    #     print result
-    #     return result
-    #
     # def onSessionOpen(self):
     #     self.registerForRpc(self, "http://localhost/frame#")
     #
+
+
     #     ## register a single, fixed URI as PubSub topic
     #     self.registerForPubSub("http://localhost/image")
     #     print "Registered for PubSub on /image topic."
@@ -169,7 +226,7 @@ class HPFbackendComponent(wamp.ApplicationSession):
 
 def hide_msg():
     theframe.txtoverlay_isvisible = -1
-    # factory.dispatch("http://localhost/msg","")
+    component_session.publish("com.hpf.msg","")
 
 def msg(message, duration=3):
     """Display some text at bottom of the screen"""
@@ -178,16 +235,10 @@ def msg(message, duration=3):
 
     reactor.callLater(duration, hide_msg)
 
-    # factory.dispatch("http://localhost/msg",message)
+    component_session.publish("com.hpf.msg",message)
     return
 
 
-#  Setup RPC (old)
-# factory = WampServerFactory("ws://localhost:9000")
-# factory.protocol = RpcServerProtocol
-# listenWS(factory)
-
-#
 router_factory = wamp.RouterFactory()
 session_factory = wamp.RouterSessionFactory(router_factory)
 
@@ -196,11 +247,11 @@ component_session = HPFbackendComponent(component_config)
 session_factory.add(component_session)
 
 transport_factory = websocket.WampWebSocketServerFactory(session_factory,
-                                                            debug = True,
+                                                            debug = False,
                                                             debug_wamp = False)
 
-server = serverFromString(reactor, "tcp:9000")
-server.listen(transport_factory)
+wsserver = serverFromString(reactor, "tcp:9000")
+wsserver.listen(transport_factory)
 
 def show_from_path(path):
     """Extracts the show string from a given path"""
@@ -212,12 +263,11 @@ def show_from_path(path):
 def show_image(imagefile):
     filepath = "%s/%s" % (theshow.path,imagefile)
     theframe.current_image_filename = filepath
-    # theframe.current_image_url = "http://192.168.4.77:8080" + filepath[1:]  # Removing the "."
     theframe.current_image_url =  filepath[1:]  # Removing the "."
 
     print "Current image is: %s" % theframe.current_image_filename
     print "Current image URL is: %s" % theframe.current_image_url
-    # factory.dispatch("http://localhost/image",theframe.current_image_url)
+    component_session.publish("com.hpf.image",theframe.current_image_url)
 
 def start_show():
     msg("GOING",duration=0.5)
@@ -234,6 +284,7 @@ def stop_show():
         msg("Can't stop.  Already stopped?")
 
 def list_shows():
+    print "list_shows() called"
     return json.dumps(theframe.shows)
 
 def list_currentshow():
@@ -255,7 +306,7 @@ def switch_shows(newshow):
     global theshow
     global theframe
     msg("Switching to show %s" % theframe.shows[newshow])
-    # factory.dispatch("http://localhost/currentshow",theframe.shows[newshow])
+    component_session.publish("com.hpf.currentshow",theframe.shows[newshow])
 
     theshow = shows[newshow]
     show_image(theshow.current())
@@ -292,7 +343,7 @@ def scan_for_shows():
         # This merely contains show names
         theframe.shows.append(os.path.basename(show_dir))
     print "Numbers of shows is NOW: %s" % len(shows)
-    # factory.dispatch("http://localhost/status",'show-list-rebuilt')
+    component_session.publish("com.hpf.status",'show-list-rebuilt')
 
 
 ## Main program starts here -- everything up until here was definition
@@ -352,8 +403,8 @@ staticrsrc = static.File(os.path.join(os.path.abspath("."), "./static"))
 root.putChild("static", staticrsrc)
 
 # Serve it up:
-# main_site = server.Site(root)
-# reactor.listenTCP(PORT, main_site)
+main_site = server.Site(root,logPath=('django.log'))
+reactor.listenTCP(PORT, main_site)
 ## Finish Django setup
 
 ## Turn on the main Twisted event loop and make things go.
