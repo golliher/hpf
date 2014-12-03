@@ -37,13 +37,15 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = '/home/dgolliher/photo-frame-project/shows/'
+# MEDIA_ROOT = '/home/dgolliher/photo-frame-project/shows/'
 # MEDIA_ROOT = os.path.join(SITE_ROOT, 'shows')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = 'http://192.168.4.77:8080/shows/'
+
+# Doesn't seem to matter the way I'm setting it up with twisted
+# MEDIA_URL = 'http://192.168.4.77:8080/shows/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -56,12 +58,12 @@ STATIC_ROOT = '/home/dgolliher/photo-frame-project/static'
 STATIC_URL = '/staticJUNK/'
 
 # Additional locations of static files
-STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    "/home/dgolliher/photo-frame-project/webremote/static/",
-)
+# STATICFILES_DIRS = (
+#     # Put strings here, like "/home/html/static" or "C:/www/django/static".
+#     # Always use forward slashes, even on Windows.
+#     # Don't forget to use absolute paths, not relative paths.
+#     "/home/dgolliher/photo-frame-project/webremote/static/",
+# )
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -151,12 +153,10 @@ try:
    from local_settings import *
 except ImportError, e:
    pass
- 
+
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
        'NAME': db_full_path,                      # Or path to database file if using sqlite3.
    }
 }
-   
-
