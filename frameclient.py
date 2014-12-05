@@ -6,20 +6,75 @@ import os
 
 import json
 
+import StringIO
+import urllib
+
 DEBUG = -1
 
 from pygame.locals import *
 
-from twisted.internet import reactor
-from twisted.internet.task import LoopingCall
-from twisted.python import log
-from twisted.application import internet, service
-from twisted.python import threadpool
-from twisted.internet import defer
+# Legacy imports
+# from twisted.internet import reactor
 
-log.startLogging(open('log.txt','w'))
+# from twisted.application import internet,
+# from twisted.python import threadpool
+# from twisted.internet import defer
+
+# Needed for non-WAMP functionality
+from twisted.python import log
+from twisted.internet.task import LoopingCall
+from twisted.application import service
+
+# New WAMP2 imports for frameclient.py
+from twisted.internet import reactor
+from twisted.internet.defer import inlineCallbacks
+
+from autobahn.twisted.wamp import ApplicationSession
+
+##
+
+from autobahn.twisted.util import sleep
+
+
+class HPFclientComponent(ApplicationSession):
+    """
+    An application component that subscribes and receives events,
+    and stop after having received 5 events.
+    """
+
+    @inlineCallbacks
+    def onJoin(self, details):
+        print("session attached")
+
+        # WHy is this here?
+        self.received = 0
+
+        def on_msg(i):
+            print("Got event: {}".format(i))
+            msg(i)
+
+        def on_img(i):
+            print("Got img: {}".format(i))
+            show_image_url(i)
+
+        global client_session
+        client_session = self
+        yield self.subscribe(on_msg, 'com.hpf.msg')
+        yield self.subscribe(on_img, 'com.hpf.image')
+
+
+    def onDisconnect(self):
+      print("disconnected")
+      reactor.stop()
+
+
+
+
+
+log.startLogging(open('frameclient-log.txt','w'))
 print "HPF Client"
 
+# HPF Libraries I wrote to encapsulate my data model
 from show import show
 from frame import frame
 
@@ -32,6 +87,52 @@ grey = 70, 70, 70
 
 textcolor = white
 bgcolor = black
+
+client_session = 0
+
+def switch_next_show():
+    print "next show"
+
+    global client_session
+    client_session.call('com.hpf.next_show')
+
+def switch_previous():
+    print "previous show"
+
+    # global client_session
+    # client_session.call('com.hpf.start')
+
+
+
+def start_show():
+    print "starting the show"
+
+    global client_session
+    client_session.call('com.hpf.start')
+
+def stop_show():
+    print "stoping the show"
+
+    global client_session
+    client_session.call('com.hpf.stop')
+
+def advance_show():
+    print "Stub for advancing the show"
+
+    global client_session
+    client_session.call('com.hpf.advance')
+
+def advance_show():
+    print "Stub for advancing the show"
+
+    global client_session
+    client_session.call('com.hpf.advance')
+
+def rewind_show():
+    print "Stub for rewinding the show"
+
+    global client_session
+    client_session.call('com.hpf.rewind')
 
 def hide_msg():
     theframe.txtoverlay_isvisible = -1
@@ -108,6 +209,42 @@ def draw_screen():
         screen.blit(textbg, ( (w/2)-(bgwidth/2) ,h-100))
     pygame.display.flip()
 
+def show_image_url(img_url):
+    """Given the URL, paints it onto the background"""
+
+    # bug, shouldn't assume URL is an image.
+    # bug, hard coding HOSTName
+
+    global show_frame
+
+    img_url = "http://192.168.4.22:8080%s" % img_url
+    print img_url
+
+    try:
+        f = StringIO.StringIO(urllib.urlopen(img_url).read())
+        print "Loaded image fromurl"
+    except:
+        print "Failed to load image from url"
+
+    try:
+        img = pygame.image.load(f,'dummy.jpg')
+    except:
+        msg("Failed to load image")
+        return
+    img = aspect_scale(img,(int(w),int(h)))
+    imgrect = img.get_rect()
+    background.fill(bgcolor)
+    ix,iy = img.get_size()
+    xshift = (w - ix) / 2
+    background.blit(img, (xshift,0))
+
+    global frame_img
+    print "Frame_img: %s" % frame_img
+    if show_frame > 0:
+        background.blit(frame_img,(0,0))
+
+    draw_screen()
+
 
 def show_image_fullyqualified(imagefile):
     """Given the path to a file, paints it onto the background"""
@@ -148,6 +285,18 @@ def game_tick():
             elif event.key == K_c: theframe.txtoverlay_isvisible = theframe.txtoverlay_isvisible * -1  # "Toggling message visibility"
             elif event.key == K_a: about_screen()
             elif event.key == K_f: toggle_frame()
+            elif event.key == K_n: advance_show()
+            elif event.key == K_RIGHT: advance_show()
+            elif event.key == K_p: rewind_show()
+            elif event.key == K_LEFT: rewind_show()
+
+            # Fleshing these our will restore command functionality.
+            ## I really should get it showing images first.
+            # elif event.key == K_UP: switch_prev_show()
+            # elif event.key == K_DOWN: switch_next_show()
+            elif event.key == K_s: stop_show()
+            elif event.key == K_g: start_show()
+
     draw_screen()
 
 # Initial pygame and the screen
@@ -185,6 +334,12 @@ tick.start(1.0 / DESIRED_FPS)
 
 # Twisted Application Framework setup:
 application = service.Application('HPF Client')
+
+# For WAMP 2
+from autobahn.twisted.wamp import ApplicationRunner
+
+runner = ApplicationRunner("ws://127.0.0.1:9000/ws", "hpf")
+runner.run(HPFclientComponent)
 
 reactor.run()
 
