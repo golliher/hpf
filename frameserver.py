@@ -1,12 +1,5 @@
 #!/usr/bin/env python
-
-# Tuesday; November 25, 2014 @ 11:04 PM
-# Contemplating stripping ALL pygame code out so this is only a server
-#  without any user interface.
-
-# I will attempt to simply delete stuff first.. this started as a copy of
-#  photoframe.py. As of 11:48 PM I have it basically working without pygame!
-#
+# Implementation of the server for HPF.
 
 import sys
 import time
@@ -24,7 +17,6 @@ seconds_to_next_slide = 60
 #  It is used for the primary event loop of this program.
 #
 
-# Used by autobahn for sure, others?
 from twisted.python import log
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
@@ -45,7 +37,6 @@ from twisted.web.static import File
 from autobahn.wamp import types
 from autobahn.twisted import wamp, websocket
 # from autobahn.twisted.util import sleep
-
 
 # Watchdog is a library that pays attention to change on the filesystem
 #
@@ -137,7 +128,6 @@ class HPFbackendComponent(wamp.ApplicationSession):
         else:
             print("procedure registered")
 
-##new
         def next_show():
             switch_next_show()
             result = "Network call to switch to NEXT show"
@@ -150,8 +140,6 @@ class HPFbackendComponent(wamp.ApplicationSession):
             print("failed to register procedure: {}".format(e))
         else:
             print("procedure registered")
-###
-
 
         def advance():
             result = "Network call to advance."
@@ -171,7 +159,6 @@ class HPFbackendComponent(wamp.ApplicationSession):
             print result
             rewind_show()
             return result
-
 
         try:
             yield self.register(rewind, 'com.hpf.rewind')
@@ -217,27 +204,6 @@ class HPFbackendComponent(wamp.ApplicationSession):
             print("failed to register procedure: {}".format(e))
         else:
             print("procedure registered")
-
-    #
-    # @exportRpc
-    # def onSessionOpen(self):
-    #     self.registerForRpc(self, "http://localhost/frame#")
-    #
-
-
-    #     ## register a single, fixed URI as PubSub topic
-    #     self.registerForPubSub("http://localhost/image")
-    #     print "Registered for PubSub on /image topic."
-    #
-    #     self.registerForPubSub("http://localhost/msg")
-    #     print "Registered for PubSub on /msg topic."
-    #
-    #     self.registerForPubSub("http://localhost/currentshow")
-    #     print "Registered for PubSub on /currentshow topic."
-    #
-    #     self.registerForPubSub("http://localhost/status")
-    #     print "Registered for PubSub on /status topic."
-
 
 def hide_msg():
     theframe.txtoverlay_isvisible = -1
