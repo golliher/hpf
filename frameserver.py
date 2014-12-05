@@ -137,6 +137,21 @@ class HPFbackendComponent(wamp.ApplicationSession):
         else:
             print("procedure registered")
 
+##new
+        def next_show():
+            switch_next_show()
+            result = "Network call to switch to NEXT show"
+            print result
+            return result
+
+        try:
+            yield self.register(switch, 'com.hpf.next_show')
+        except Exception as e:
+            print("failed to register procedure: {}".format(e))
+        else:
+            print("procedure registered")
+###
+
 
         def advance():
             result = "Network call to advance."
