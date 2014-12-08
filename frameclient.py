@@ -11,6 +11,8 @@ import urllib
 
 DEBUG = -1
 
+frameserver_ip = "localhost"
+
 from pygame.locals import *
 
 # Legacy imports
@@ -222,7 +224,7 @@ def show_image_url(img_url):
 
     global show_frame
 
-    img_url = "http://192.168.4.14:8080%s" % img_url
+    img_url = "http://%s:8080%s" % (frameserver_ip, img_url)
     print img_url
 
     try:
@@ -343,7 +345,9 @@ application = service.Application('HPF Client')
 # For WAMP 2
 from autobahn.twisted.wamp import ApplicationRunner
 
-runner = ApplicationRunner("ws://192.168.4.14:9000/ws", "hpf")
+
+ws_url = "ws://%s:9000/ws" % frameserver_ip
+runner = ApplicationRunner(ws_url, "hpf")
 runner.run(HPFclientComponent)
 
 "Print I should get and show the current images"
