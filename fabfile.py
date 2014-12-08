@@ -7,6 +7,10 @@ import os
 env.hosts = ['192.168.4.22']
 env.collect_cmd = '/Users/dgolliher/.virtualenvs/photoframe/bin/python /Users/dgolliher/CodeProjects/photoframe-project/webremote/manage.py collectstatic --noinput'
 
+def mintvm():
+    env.user = 'golliher'
+    env.hosts = ['192.168.4.30']
+
 def livingroom_pi():
     env.user = 'pi'
     env.hosts = ['192.168.4.76']
