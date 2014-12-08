@@ -59,6 +59,11 @@ class HPFclientComponent(ApplicationSession):
 
         global client_session
         client_session = self
+
+        initial_img = yield self.call('com.hpf.getcurrentimage')
+        print("Initial image %s" % initial_img)
+        show_image_url(initial_img)
+
         yield self.subscribe(on_msg, 'com.hpf.msg')
         yield self.subscribe(on_img, 'com.hpf.image')
 
@@ -91,16 +96,16 @@ bgcolor = black
 client_session = 0
 
 def switch_next_show():
-    print "next show"
+    print "Changing to next show"
 
     global client_session
-    client_session.call('com.hpf.next_show')
+    client_session.call('com.hpf.nextshow')
 
-def switch_previous():
+def switch_prev_show():
     print "previous show"
 
-    # global client_session
-    # client_session.call('com.hpf.start')
+    global client_session
+    client_session.call('com.hpf.prevshow')
 
 
 
@@ -217,7 +222,7 @@ def show_image_url(img_url):
 
     global show_frame
 
-    img_url = "http://192.168.4.22:8080%s" % img_url
+    img_url = "http://192.168.4.14:8080%s" % img_url
     print img_url
 
     try:
@@ -292,8 +297,8 @@ def game_tick():
 
             # Fleshing these our will restore command functionality.
             ## I really should get it showing images first.
-            # elif event.key == K_UP: switch_prev_show()
-            # elif event.key == K_DOWN: switch_next_show()
+            elif event.key == K_UP: switch_prev_show()
+            elif event.key == K_DOWN: switch_next_show()
             elif event.key == K_s: stop_show()
             elif event.key == K_g: start_show()
 
@@ -338,8 +343,10 @@ application = service.Application('HPF Client')
 # For WAMP 2
 from autobahn.twisted.wamp import ApplicationRunner
 
-runner = ApplicationRunner("ws://127.0.0.1:9000/ws", "hpf")
+runner = ApplicationRunner("ws://192.168.4.14:9000/ws", "hpf")
 runner.run(HPFclientComponent)
+
+"Print I should get and show the current images"
 
 reactor.run()
 

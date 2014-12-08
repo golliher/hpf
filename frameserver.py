@@ -128,18 +128,33 @@ class HPFbackendComponent(wamp.ApplicationSession):
         else:
             print("procedure registered")
 
-        def next_show():
-            switch_next_show()
+        def nextshow():
             result = "Network call to switch to NEXT show"
+            switch_next_show()
             print result
             return result
 
         try:
-            yield self.register(switch, 'com.hpf.next_show')
+            yield self.register(nextshow, 'com.hpf.nextshow')
         except Exception as e:
             print("failed to register procedure: {}".format(e))
         else:
             print("procedure registered")
+
+        def prevshow():
+            result = "Network call to switch to PREVIOUS show"
+            switch_prev_show()
+            print result
+            return result
+
+        try:
+            yield self.register(prevshow, 'com.hpf.prevshow')
+        except Exception as e:
+            print("failed to register procedure: {}".format(e))
+        else:
+            print("procedure registered")
+
+
 
         def advance():
             result = "Network call to advance."
@@ -280,6 +295,8 @@ def switch_next_show():
     global theframe
     newindex = (theframe.activeshow_index + 1) % len(theframe.shows)
     newindex = newindex +1 # fix 'off by one' difference between the two structures
+    print "New index is: %s " % newindex
+
     switch_shows( newindex )
 
 def switch_shows(newshow):
