@@ -31,6 +31,12 @@
 	<script type="text/javascript" src="{% static "klass.min.js" %} "> </script>
 	<script type="text/javascript" src="{% static "code.photoswipe.jquery-3.0.5.min.js" %}" ></script>
 	<script type="text/javascript" src="{% static "hpf.js" %}" ></script>
+
+
+  <script type="text/javascript" src="{% static "screenfull.js" %}" > </script>
+
+
+
 	<script type="text/javascript" src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
 	<script>
 	function fullscreen() {
@@ -50,7 +56,13 @@
 	<script>
 	window.onload = function() {
 	    hpfinit();
-		fullscreen();
+
+      $('#frame-image').click(function () {
+        screenfull.toggle(this);
+      });
+
+
+		// fullscreen();
 
 		{% block onload_functions %}
 		{% endblock %}
