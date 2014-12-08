@@ -224,6 +224,12 @@ hpfinit = function() {
 		console.log(current_show)
 		console.log(connection)
 
+		connection.onclose = function (session) {
+			console.log("disconnected!");
+			$('a#prog-name').css({color:'red'});
+
+		}
+
 		connection.onopen = function (session) {
 			sess = session;
 			console.log("On open..")
