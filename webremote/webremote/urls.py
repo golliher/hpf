@@ -10,6 +10,10 @@ urlpatterns = patterns('',
     url(r'^$', 'remote.views.index', name='index'),
     # url(r'^webremote/', include('webremote.foo.urls')),
 
+    # Lets serve some simple HTML and Javascript
+    url(r'^simpleframe/$', include('simpleframe.urls')),
+
+    # Something to do with the file uploader?
     url(r'^list/$', 'remote.views.list', name='list'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
@@ -17,4 +21,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
+
+
+
 )
