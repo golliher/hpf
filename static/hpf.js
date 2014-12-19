@@ -17,6 +17,39 @@ function switchshow(targetshow) {
     $("html, body").animate({ scrollTop: 0 });
 }
 
+function next_show() {
+	console.log("Switching to next show")
+	sess.call("com.hpf.nextshow").then(
+
+		console.log(),
+
+		function (error) {
+			console.log("Call failed:", error);
+			connection.close();
+		}
+
+	);
+	console.log("Done switching to next show.")
+	get_currentimage_url();
+}
+
+function prev_show() {
+	console.log("Switching to previous show")
+	sess.call("com.hpf.prevshow").then(
+
+		console.log(),
+
+		function (error) {
+			console.log("Call failed:", error);
+			connection.close();
+		}
+
+	);
+	console.log("Done switching to previous show.")
+	get_currentimage_url();
+}
+
+
 function advance() {
 	console.log("Advancing show")
 		console.log("SESSION" + sess)
@@ -208,7 +241,11 @@ hpfinit = function() {
 
     $(document).keydown(function(evt) {
         switch (evt.keyCode) {
-            case 39:  advance(); break;
+            case 40:  next_show(); break;
+						case 38:  prev_show(); break;
+						case 83:  stop(); break;
+						case 71:  start(); break;
+						case 39:  advance(); break;
             case 37:  rewind(); break;
 
         }
